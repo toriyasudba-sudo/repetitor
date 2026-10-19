@@ -699,8 +699,8 @@
         // =========================================================================
         // 1. КОНФИГУРАЦИЯ SUPABASE (Публичный URL и ANON KEY безопасны благодаря RLS!)
         // =========================================================================
-        const SUPABASE_URL = ""; 
-        const SUPABASE_ANON_KEY = "";
+        const SUPABASE_URL = "https://migxmipioqekbsuosqek.supabase.co"; 
+        const SUPABASE_ANON_KEY = "sb_publishable_8czdqVj9CIhzmV4lzDmAnA_u4PNV6PD";
         const ADMIN_TG_USERNAME = "toriya_nova";
 
         let sb = null;
