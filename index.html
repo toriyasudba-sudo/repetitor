@@ -60,6 +60,46 @@
         .admin-toggle-btn.active { background: var(--lv-gold); color: var(--lv-dark); }
         .container { max-width: 540px; margin: 0 auto; padding: 18px 16px; }
 
+        /* Промо-баннер каникул */
+        .promo-banner {
+            background: linear-gradient(135deg, var(--lv-dark) 0%, var(--lv-brown) 100%);
+            color: var(--lv-cream);
+            border: 1.5px solid var(--lv-gold);
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            box-shadow: 0 6px 18px rgba(30, 20, 15, 0.15);
+        }
+        .promo-banner-tag {
+            background: var(--lv-gold);
+            color: var(--lv-dark);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.8px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        .promo-banner-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--lv-gold-light);
+            line-height: 1.2;
+        }
+        .promo-banner-sub {
+            font-size: 11px;
+            color: var(--lv-sand);
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
         .progress-bar { display: flex; justify-content: space-between; margin-bottom: 22px; position: relative; }
         .progress-bar::before {
             content: ''; position: absolute; top: 50%; left: 0; right: 0;
@@ -117,9 +157,9 @@
         .lv-option.selected .check-icon { background: var(--lv-gold); color: var(--lv-dark); }
 
         .tariff-card {
-            background: #fff; border: 1.5px solid rgba(197, 160, 89, 0.4);
+            background: #fff; border: 1.5px solid rgba(197, 160, 89, 0.45);
             border-radius: 12px; padding: 16px; margin-bottom: 12px;
-            cursor: pointer; transition: 0.25s;
+            cursor: pointer; transition: 0.25s; position: relative;
         }
         .tariff-card.selected {
             background: linear-gradient(135deg, var(--lv-dark) 0%, var(--lv-brown) 100%);
@@ -131,10 +171,12 @@
             font-size: 10px; font-weight: 700; text-transform: uppercase;
             padding: 3px 8px; border-radius: 4px; margin-bottom: 6px; letter-spacing: 0.8px;
         }
-        .tariff-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+        .tariff-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; gap: 8px; }
         .tariff-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; }
+        .tariff-price-wrap { text-align: right; flex-shrink: 0; }
+        .tariff-old-price { font-size: 11px; text-decoration: line-through; opacity: 0.6; margin-right: 6px; }
         .tariff-price { font-size: 18px; font-weight: 700; color: var(--lv-gold); }
-        .tariff-sub { font-size: 12px; opacity: 0.8; }
+        .tariff-sub { font-size: 12px; opacity: 0.85; }
 
         .lv-input-group { margin-top: 14px; }
         .lv-label {
@@ -167,11 +209,69 @@
         .slot-pill {
             background: #fff; border: 1px solid var(--lv-gold); border-radius: 10px;
             padding: 10px 6px; text-align: center; cursor: pointer; transition: 0.2s;
+            position: relative;
         }
-        .slot-pill .day { font-size: 11px; color: var(--lv-muted); text-transform: uppercase; }
-        .slot-pill .time { font-size: 14px; font-weight: 700; color: var(--lv-dark); margin-top: 3px; }
+        .slot-pill .day { font-size: 10px; color: var(--lv-muted); text-transform: uppercase; margin-top: 2px; }
+        .slot-pill .time { font-size: 13px; font-weight: 700; color: var(--lv-dark); }
         .slot-pill.selected { background: var(--lv-dark); border-color: var(--lv-gold); }
         .slot-pill.selected .day, .slot-pill.selected .time { color: var(--lv-gold-light); }
+        .slot-pill.has-picked { border: 1.5px solid var(--lv-success); }
+        .slot-picked-badge {
+            display: inline-block; background: var(--lv-gold); color: var(--lv-dark);
+            font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 8px; margin-top: 3px;
+        }
+
+        /* Панель выбранных слотов (мульти-выбор) */
+        .slots-counter-box {
+            background: var(--lv-sand);
+            border: 1px solid rgba(197, 160, 89, 0.55);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+        }
+        .slots-counter-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--lv-dark);
+        }
+        .slots-counter-badge {
+            background: var(--lv-dark);
+            color: var(--lv-gold);
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+        .slots-counter-badge.complete {
+            background: var(--lv-success);
+            color: #fff;
+        }
+        .picked-chips-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .picked-chip {
+            background: #fff;
+            border: 1px solid var(--lv-gold);
+            border-radius: 8px;
+            padding: 5px 9px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--lv-dark);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .picked-chip span.rm {
+            color: var(--lv-danger);
+            font-weight: 700;
+            font-size: 12px;
+        }
 
         /* Календарь */
         .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -246,6 +346,15 @@
         <!-- КЛИЕНТСКАЯ ЧАСТЬ -->
         <div id="clientView">
 
+            <!-- Баннер каникулярной акции -->
+            <div class="promo-banner">
+                <div>
+                    <span class="promo-banner-tag">🍂 Спецпроект на каникулы • 26–30 октября</span>
+                    <div class="promo-banner-title">Неделя подтягивания математики</div>
+                    <div class="promo-banner-sub">Закроем пробелы и вернём уверенность за 1–4 занятия по спеццене</div>
+                </div>
+            </div>
+
             <div class="progress-bar">
                 <div class="progress-step active" id="pStep1">I</div>
                 <div class="progress-step" id="pStep2">II</div>
@@ -266,12 +375,12 @@
                 </div>
 
                 <div class="lv-input-group" style="margin-top: 20px;">
-                    <label class="lv-label">Главная задача сейчас:</label>
+                    <label class="lv-label">Главная задача на эту неделю каникул:</label>
                     <select id="goalSelect" class="lv-select">
-                        <option value="Подтянуть текущую успеваемость и оценки">Подтянуть текущую успеваемость и оценки</option>
-                        <option value="Убрать страх перед математикой и закрыть пробелы">Убрать страх перед предметом и закрыть пробелы</option>
-                        <option value="Помощь с домашними заданиями и контрольными">Помощь с домашками и контрольными</option>
-                        <option value="Системная подготовка к экзаменам (ОГЭ/ЕГЭ)">Системная подготовка к экзаменам</option>
+                        <option value="Интенсив на каникулах: закрыть пробелы и подтянуть оценки">Интенсив на каникулах: закрыть пробелы и оценки</option>
+                        <option value="Убрать страх перед математикой и разобрать сложные темы">Убрать страх перед предметом и понять базу</option>
+                        <option value="Подготовиться к контрольным после каникул">Подготовиться к контрольным после каникул</option>
+                        <option value="Системная подготовка к экзаменам (ОГЭ/ЕГЭ)">Системная подготовка к экзаменам (ОГЭ/ЕГЭ)</option>
                         <option value="Углубленная математика на опережение">Углубленная математика на опережение</option>
                     </select>
                 </div>
@@ -282,8 +391,8 @@
             </div>
 
             <div id="step2" class="lv-card hidden">
-                <div class="lv-title">II. Какие темы вызывают сложности?</div>
-                <div class="lv-desc">Можно выбрать <b>несколько вариантов</b> из списка или вписать свою тему ниже:</div>
+                <div class="lv-title">II. Какие темы нужно подтянуть?</div>
+                <div class="lv-desc">Можно выбрать <b>несколько вариантов</b> из списка или вписать свою задачу ниже:</div>
 
                 <div id="topicsContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
 
@@ -294,56 +403,89 @@
 
                 <div class="btn-row">
                     <button class="lv-btn lv-btn-secondary" style="width: 40%;" onclick="goToStep(1)">Назад</button>
-                    <button class="lv-btn" style="width: 60%;" onclick="goToStep(3)">К тарифам ➔</button>
+                    <button class="lv-btn" style="width: 60%;" onclick="goToStep(3)">К пакетам каникул ➔</button>
                 </div>
             </div>
 
             <div id="step3" class="lv-card hidden">
-                <div class="lv-title">III. Формат и стоимость занятий</div>
-                <div class="lv-desc">Выберите разовый урок-диагностику или выгодный абонемент с закреплением времени:</div>
+                <div class="lv-title">III. Спецпакеты на каникулы (26–30 окт)</div>
+                <div class="lv-desc">Выберите количество занятий на неделю каникул (по 60 минут). На следующем шаге вы сразу забронируете все нужные дни и время:</div>
 
-                <div class="tariff-card selected" onclick="selectTariff('Разовое занятие — 350.000 ₫', this)">
-                    <span class="tariff-badge">Старт и диагностика</span>
+                <!-- 4 ЗАНЯТИЯ (ХИТ ПО УМОЛЧАНИЮ) -->
+                <div class="tariff-card selected" onclick="selectTariff('🔥 Каникулы: 4 занятия — 1.000.000 ₫', 4, this)">
+                    <span class="tariff-badge">🔥 Хит каникул • Выгода 400.000 ₫</span>
                     <div class="tariff-header">
-                        <div class="tariff-name">1 Занятие (Индивидуально)</div>
-                        <div class="tariff-price">350.000 ₫</div>
+                        <div class="tariff-name">Интенсив • 4 занятия</div>
+                        <div class="tariff-price-wrap">
+                            <span class="tariff-old-price">1.400.000 ₫</span>
+                            <span class="tariff-price">1.000.000 ₫</span>
+                        </div>
                     </div>
-                    <div class="tariff-sub">Разбор сложной темы, полная диагностика знаний и план обучения (350k VND).</div>
+                    <div class="tariff-sub">Всего <b>250.000 ₫ за урок</b> (60 мин) при единовременной оплате. Полная перезагрузка знаний за неделю каникул + закрепление 4 слотов.</div>
                 </div>
 
-                <div class="tariff-card" onclick="selectTariff('Абонемент 4 урока — 1.300.000 ₫', this)">
-                    <span class="tariff-badge">Популярный выбор</span>
+                <!-- 3 ЗАНЯТИЯ -->
+                <div class="tariff-card" onclick="selectTariff('Каникулы: 3 занятия — 850.000 ₫', 3, this)">
+                    <span class="tariff-badge">Спринт • Выгода 200.000 ₫</span>
                     <div class="tariff-header">
-                        <div class="tariff-name">Абонемент • 4 занятия</div>
-                        <div class="tariff-price">1.300.000 ₫</div>
+                        <div class="tariff-name">Пакет • 3 занятия</div>
+                        <div class="tariff-price-wrap">
+                            <span class="tariff-old-price">1.050.000 ₫</span>
+                            <span class="tariff-price">850.000 ₫</span>
+                        </div>
                     </div>
-                    <div class="tariff-sub">325.000 ₫ за урок. Фиксация постоянного слота в расписании + проверка ДЗ.</div>
+                    <div class="tariff-sub">~283.000 ₫ за урок (60 мин). Глубокая проработка 2–3 западающих тем с практикой и разбором ошибок. Бронь 3 слотов сразу.</div>
                 </div>
 
-                <div class="tariff-card" onclick="selectTariff('Абонемент 8 уроков — 2.400.000 ₫', this)">
-                    <span class="tariff-badge">Максимальный результат</span>
+                <!-- 2 ЗАНЯТИЯ -->
+                <div class="tariff-card" onclick="selectTariff('Каникулы: 2 занятия — 600.000 ₫', 2, this)">
+                    <span class="tariff-badge">Дуэт • Выгода 100.000 ₫</span>
                     <div class="tariff-header">
-                        <div class="tariff-name">Абонемент • 8 занятий</div>
-                        <div class="tariff-price">2.400.000 ₫</div>
+                        <div class="tariff-name">Пакет • 2 занятия</div>
+                        <div class="tariff-price-wrap">
+                            <span class="tariff-old-price">700.000 ₫</span>
+                            <span class="tariff-price">600.000 ₫</span>
+                        </div>
                     </div>
-                    <div class="tariff-sub">300.000 ₫ за урок (выгода 400k ₫). Полное ведение ученика и связь в Telegram @toriya_nova.</div>
+                    <div class="tariff-sub">300.000 ₫ за урок (60 мин). Диагностика пробелов + точечный разбор главной сложной темы. Бронь 2 слотов.</div>
+                </div>
+
+                <!-- 1 ЗАНЯТИЕ -->
+                <div class="tariff-card" onclick="selectTariff('Каникулы: 1 занятие — 350.000 ₫', 1, this)">
+                    <span class="tariff-badge">Точечный старт</span>
+                    <div class="tariff-header">
+                        <div class="tariff-name">1 занятие (Индивидуально)</div>
+                        <div class="tariff-price-wrap">
+                            <span class="tariff-price">350.000 ₫</span>
+                        </div>
+                    </div>
+                    <div class="tariff-sub">Разовый урок 60 мин: диагностика знаний, разбор конкретной темы и план обучения.</div>
                 </div>
 
                 <div class="btn-row">
                     <button class="lv-btn lv-btn-secondary" style="width: 40%;" onclick="goToStep(2)">Назад</button>
-                    <button class="lv-btn" style="width: 60%;" onclick="goToStep(4)">Выбрать время ➔</button>
+                    <button class="lv-btn" style="width: 60%;" onclick="goToStep(4)">Выбрать слоты ➔</button>
                 </div>
             </div>
 
             <div id="step4" class="lv-card hidden">
-                <div class="lv-title">IV. Выберите день и время</div>
-                <div class="lv-desc">Сначала день, затем свободное время. Выбранный слот сразу закрывается за вами.</div>
+                <div class="lv-title">IV. Выберите дни и время (26–30 окт)</div>
+                <div class="lv-desc" id="step4Desc">Выберите день, затем нажмите на удобное время. Можно выбрать окошки в разные дни каникул.</div>
 
-                <label class="lv-label">День</label>
+                <!-- Счётчик выбранных слотов -->
+                <div class="slots-counter-box">
+                    <div class="slots-counter-head">
+                        <span id="slotsCounterTitle">Выбрано занятий по пакету:</span>
+                        <span class="slots-counter-badge" id="slotsCounterBadge">0 из 4</span>
+                    </div>
+                    <div id="pickedChipsContainer" class="picked-chips-wrap"></div>
+                </div>
+
+                <label class="lv-label">Дни каникул (нажмите на день)</label>
                 <div id="daysRow" class="grid-3" style="margin-bottom: 14px;"></div>
 
                 <div id="timesWrap" class="hidden">
-                    <label class="lv-label">Время (Вьетнам)</label>
+                    <label class="lv-label" id="timesLabel">Свободное время (Вьетнам)</label>
                     <div id="timesGrid" class="grid-3" style="margin-bottom: 14px;"></div>
                 </div>
 
@@ -366,8 +508,8 @@
             <!-- УСПЕХ -->
             <div id="successScreen" class="lv-card hidden" style="text-align: center; padding: 32px 20px;">
                 <div style="font-size: 46px; color: var(--lv-success); margin-bottom: 6px;">✓</div>
-                <div class="lv-title" style="font-size: 26px;">Заявка отправлена!</div>
-                <p class="lv-desc" style="margin-top: 6px;">Тория получила вашу запись и свяжется с вами в Telegram.</p>
+                <div class="lv-title" style="font-size: 26px;">Слоты забронированы!</div>
+                <p class="lv-desc" style="margin-top: 6px;">Тория получила ваше расписание на неделю каникул и свяжется с вами в Telegram.</p>
                 <p class="lv-desc" id="bookingSummaryText" style="font-size: 14px; color: var(--lv-text); text-align: left; background: var(--lv-sand); padding: 14px; border-radius: 10px;"></p>
                 <a id="directTgLink" href="https://t.me/toriya_nova" target="_blank" class="lv-btn lv-btn-secondary" style="text-decoration: none; margin-top: 6px;" onclick="return openTgChat(event)">
                     Написать Тории лично
@@ -398,7 +540,11 @@
             <div id="adminTabSlots">
                 <div class="lv-card">
                     <div class="lv-title">Открыть окошки</div>
-                    <div class="lv-desc">1. Отметь дни в календаре. 2. Отметь время начала. 3. Нажми «Открыть». Точка под датой — там уже есть слоты.</div>
+                    <div class="lv-desc">1. Отметь дни в календаре (или нажми кнопку каникул). 2. Отметь время начала. 3. Нажми «Открыть».</div>
+
+                    <button onclick="selectHolidayWeekInCal()" style="width:100%; margin-bottom:12px; padding:9px 12px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; background:var(--lv-sand); color:var(--lv-dark); border:1px solid var(--lv-gold); border-radius:8px; cursor:pointer;">
+                        🍂 Выделить неделю каникул (26–30 октября)
+                    </button>
 
                     <div class="cal-head">
                         <button class="cal-nav" onclick="calShift(-1)">‹</button>
@@ -446,7 +592,7 @@
 
             <div id="adminTabLeads" class="lv-card hidden">
                 <div class="lv-title">Заявки с диагностики</div>
-                <div class="lv-desc">Все ответы новых учеников, выбранные темы и забронированные слоты:</div>
+                <div class="lv-desc">Все ответы новых учеников, выбранные пакеты и забронированные слоты:</div>
                 <div id="adminLeadsList"></div>
             </div>
 
@@ -477,6 +623,9 @@
         const SUPABASE_URL = "https://migxmipioqekbsuosqek.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_8czdqVj9CIhzmV4lzDmAnA_u4PNV6PD";
         const ADMIN_TG_USERNAME = "toriya_nova";
+
+        // Фильтр каникулярной акции: показывать клиентам слоты с 26 по 30 октября
+        const PROMO_FILTER_26_30_OCT = true;
 
         let sb = null;
         try {
@@ -540,6 +689,11 @@
             return d;
         }
         const isPastSlot = s => { const d = parseSlotDate(s.day_label); return !!d && d < todayStart(); };
+        function isHolidayPromoSlot(s) {
+            const d = parseSlotDate(s.day_label);
+            if (!d) return false;
+            return d.getMonth() === 9 && d.getDate() >= 26 && d.getDate() <= 30;
+        }
         function sortSlots(arr) {
             const key = s => { const d = parseSlotDate(s.day_label); return d ? d.getTime() : Infinity; };
             return [...arr].sort((a, b) => key(a) - key(b) || String(a.time_range).localeCompare(String(b.time_range)));
@@ -581,22 +735,30 @@
         };
 
         let state = {
-            grade: 0, subjects: [], goal: '', topics: [], customTopic: '',
-            tariff: 'Разовое занятие — 350.000 ₫',
-            selectedDay: null, selectedSlotId: null, selectedSlotLabel: ''
+            grade: 0,
+            subjects: [],
+            goal: '',
+            topics: [],
+            customTopic: '',
+            tariff: '🔥 Каникулы: 4 занятия — 1.000.000 ₫',
+            requiredSlots: 4,
+            selectedDay: null,
+            selectedSlots: [] // массив объектов { id, day_label, time_range, label }
         };
 
         function gradeLabel() {
             return `${state.grade} класс` + (state.grade > 6 ? ' • ' + state.subjects.join(' + ') : '');
         }
 
-        // Локальный резерв (если Supabase недоступен)
+        // Локальный резерв на неделю каникул 26-30 октября (если Supabase недоступен)
         function fallbackSlots() {
             const out = [];
-            const base = todayStart();
-            for (let i = 1; i <= 6; i++) {
-                const d = new Date(base); d.setDate(d.getDate() + i);
-                ['15:00 - 16:00', '17:00 - 18:00'].forEach((t, k) => out.push({ id: `slot-${i}-${k}`, day_label: fmtDay(d), time_range: t, is_booked: false }));
+            const year = new Date().getFullYear();
+            for (let day = 26; day <= 30; day++) {
+                const d = new Date(year, 9, day); // 9 = Октябрь
+                ['11:00 - 12:00', '15:00 - 16:00', '17:00 - 18:00'].forEach((t, k) => {
+                    out.push({ id: `slot-oct${day}-${k}`, day_label: fmtDay(d), time_range: t, is_booked: false });
+                });
             }
             return out;
         }
@@ -697,16 +859,73 @@
             });
         }
 
-        function selectTariff(tariffName, el) {
+        function selectTariff(tariffName, slotsCount, el) {
             state.tariff = tariffName;
+            state.requiredSlots = slotsCount;
+            if (state.selectedSlots.length > slotsCount) {
+                state.selectedSlots = state.selectedSlots.slice(0, slotsCount);
+            }
             document.querySelectorAll('.tariff-card').forEach(c => c.classList.remove('selected'));
             el.classList.add('selected');
         }
 
-        // Слоты клиента: сначала день, потом время
+        // Слоты клиента: мульти-выбор под количество занятий в пакете
         let clientSlotsCache = [];
         async function loadClientSlots() {
-            clientSlotsCache = sortSlots(await fetchPublicFreeSlots()).filter(s => !isPastSlot(s));
+            const allFree = sortSlots(await fetchPublicFreeSlots()).filter(s => !isPastSlot(s));
+            if (PROMO_FILTER_26_30_OCT) {
+                const promoSlots = allFree.filter(isHolidayPromoSlot);
+                // Если слоты на 26–30 октября открыты — показываем строго их
+                clientSlotsCache = promoSlots.length > 0 ? promoSlots : allFree;
+            } else {
+                clientSlotsCache = allFree;
+            }
+
+            // Оставляем в выбранных только те слоты, которые ещё свободны
+            const validIds = new Set(clientSlotsCache.map(s => s.id));
+            state.selectedSlots = state.selectedSlots.filter(item => validIds.has(item.id));
+            drawClientSlots();
+        }
+
+        function removePickedSlot(slotId) {
+            state.selectedSlots = state.selectedSlots.filter(s => s.id !== slotId);
+            drawClientSlots();
+        }
+
+        function toggleSlotSelection(slot) {
+            const idx = state.selectedSlots.findIndex(s => s.id === slot.id);
+            if (idx >= 0) {
+                state.selectedSlots.splice(idx, 1);
+                drawClientSlots();
+                return;
+            }
+
+            if (state.requiredSlots === 1) {
+                state.selectedSlots = [{
+                    id: slot.id,
+                    day_label: slot.day_label,
+                    time_range: slot.time_range,
+                    label: `${slot.day_label} (${slot.time_range})`
+                }];
+                drawClientSlots();
+                return;
+            }
+
+            if (state.selectedSlots.length >= state.requiredSlots) {
+                showToast(`Вы уже выбрали все ${state.requiredSlots} слота! Нажмите на выбранный слот, чтобы заменить его.`);
+                return;
+            }
+
+            state.selectedSlots.push({
+                id: slot.id,
+                day_label: slot.day_label,
+                time_range: slot.time_range,
+                label: `${slot.day_label} (${slot.time_range})`
+            });
+
+            if (state.selectedSlots.length === state.requiredSlots) {
+                showToast(`Отлично! Все слоты (${state.requiredSlots} из ${state.requiredSlots}) выбраны ✦`);
+            }
             drawClientSlots();
         }
 
@@ -714,6 +933,36 @@
             const daysBox = document.getElementById('daysRow');
             const timesBox = document.getElementById('timesGrid');
             const timesWrap = document.getElementById('timesWrap');
+            const badge = document.getElementById('slotsCounterBadge');
+            const chipsBox = document.getElementById('pickedChipsContainer');
+            const submitBtn = document.getElementById('submitBookingBtn');
+
+            const pickedCount = state.selectedSlots.length;
+            const reqCount = state.requiredSlots;
+
+            badge.textContent = `${pickedCount} из ${reqCount}`;
+            badge.classList.toggle('complete', pickedCount === reqCount);
+
+            chipsBox.innerHTML = '';
+            if (pickedCount === 0) {
+                chipsBox.innerHTML = `<span style="font-size:11px; color:var(--lv-muted);">Нажмите на день ниже и выберите ${reqCount === 1 ? '1 удобное окно' : reqCount + ' удобных окна'} в расписании.</span>`;
+            } else {
+                state.selectedSlots.forEach((item, i) => {
+                    const chip = document.createElement('div');
+                    chip.className = 'picked-chip';
+                    chip.innerHTML = `<span>${i + 1}. ${esc(item.label)}</span><span class="rm">✕</span>`;
+                    chip.onclick = () => removePickedSlot(item.id);
+                    chipsBox.appendChild(chip);
+                });
+            }
+
+            if (pickedCount < reqCount) {
+                const left = reqCount - pickedCount;
+                submitBtn.textContent = `Выберите ещё ${left} ${left === 1 ? 'слот' : 'слота'}`;
+            } else {
+                submitBtn.textContent = reqCount === 1 ? '✦ Записаться' : `✦ Забронировать (${reqCount} ур.)`;
+            }
+
             daysBox.innerHTML = '';
             timesBox.innerHTML = '';
 
@@ -730,29 +979,39 @@
                 if (!groups.has(s.day_label)) groups.set(s.day_label, []);
                 groups.get(s.day_label).push(s);
             });
-            if (state.selectedDay && !groups.has(state.selectedDay)) {
-                state.selectedDay = null; state.selectedSlotId = null; state.selectedSlotLabel = '';
+
+            if (!state.selectedDay || !groups.has(state.selectedDay)) {
+                state.selectedDay = groups.keys().next().value || null;
             }
 
             groups.forEach((list, day) => {
+                const pickedInDay = state.selectedSlots.filter(x => x.day_label === day).length;
                 const div = document.createElement('div');
-                div.className = 'slot-pill' + (state.selectedDay === day ? ' selected' : '');
-                div.innerHTML = `<div class="time">${esc(day)}</div><div class="day">${list.length} окон</div>`;
-                div.onclick = () => { state.selectedDay = day; state.selectedSlotId = null; state.selectedSlotLabel = ''; drawClientSlots(); };
+                div.className = 'slot-pill'
+                    + (state.selectedDay === day ? ' selected' : '')
+                    + (pickedInDay > 0 ? ' has-picked' : '');
+                div.innerHTML = `
+                    <div class="time">${esc(day)}</div>
+                    <div class="day">${list.length} окон</div>
+                    ${pickedInDay > 0 ? `<div class="slot-picked-badge">✓ Выбрано: ${pickedInDay}</div>` : ''}
+                `;
+                div.onclick = () => {
+                    state.selectedDay = day;
+                    drawClientSlots();
+                };
                 daysBox.appendChild(div);
             });
 
-            if (state.selectedDay) {
+            if (state.selectedDay && groups.has(state.selectedDay)) {
                 timesWrap.classList.remove('hidden');
+                document.getElementById('timesLabel').textContent = `Свободное время на ${state.selectedDay} (Вьетнам)`;
+                const pickedIds = new Set(state.selectedSlots.map(s => s.id));
                 groups.get(state.selectedDay).forEach(slot => {
+                    const isPicked = pickedIds.has(slot.id);
                     const div = document.createElement('div');
-                    div.className = 'slot-pill' + (state.selectedSlotId === slot.id ? ' selected' : '');
-                    div.innerHTML = `<div class="time">${esc(slot.time_range)}</div>`;
-                    div.onclick = () => {
-                        state.selectedSlotId = slot.id;
-                        state.selectedSlotLabel = `${slot.day_label} (${slot.time_range})`;
-                        drawClientSlots();
-                    };
+                    div.className = 'slot-pill' + (isPicked ? ' selected' : '');
+                    div.innerHTML = `<div class="time">${isPicked ? '✓ ' : ''}${esc(slot.time_range)}</div>`;
+                    div.onclick = () => toggleSlotSelection(slot);
                     timesBox.appendChild(div);
                 });
             } else {
@@ -785,88 +1044,108 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // ================= БРОНЬ =================
+        // ================= БРОНЬ (МУЛЬТИ-СЛОТ) =================
         async function submitBooking() {
             const name = document.getElementById('clientName').value.trim();
             const tgUser = document.getElementById('clientTg').value.trim();
             state.goal = document.getElementById('goalSelect').value;
             state.customTopic = document.getElementById('customTopicInput').value.trim();
 
-            if (!state.selectedSlotId) { showToast('Выберите день и время'); return; }
+            if (state.selectedSlots.length < state.requiredSlots) {
+                const left = state.requiredSlots - state.selectedSlots.length;
+                showToast(`Выберите ещё ${left} ${left === 1 ? 'слот' : 'слота'} по вашему пакету (${state.selectedSlots.length} из ${state.requiredSlots})`);
+                return;
+            }
             if (!name || !tgUser) { showToast('Укажите ваше имя и Telegram для связи'); return; }
 
             const btn = document.getElementById('submitBookingBtn');
             btn.disabled = true;
-            btn.textContent = 'Отправляем...';
-            const resetBtn = () => { btn.disabled = false; btn.textContent = '✦ Записаться'; };
+            btn.textContent = 'Бронируем слоты...';
+            const resetBtn = () => {
+                btn.disabled = false;
+                drawClientSlots();
+            };
+
+            const combinedSlotsLabel = state.selectedSlots.map(s => s.label).join(' • ');
 
             if (sb) {
-                let res;
-                try {
-                    res = await sb.rpc('book_tutor_slot', {
-                        p_slot_id: state.selectedSlotId,
-                        p_student_name: name,
-                        p_tg_username: tgUser,
-                        p_grade: gradeLabel(),
-                        p_topics: state.topics,
-                        p_custom_topic: state.customTopic,
-                        p_goal: state.goal,
-                        p_tariff: state.tariff,
-                        p_slot_snapshot: state.selectedSlotLabel
-                    });
-                } catch (e) { res = { error: e, data: null }; }
-                const { data, error } = res;
-                resetBtn();
+                const failedSlots = [];
+                for (const slotItem of state.selectedSlots) {
+                    try {
+                        const { data, error } = await sb.rpc('book_tutor_slot', {
+                            p_slot_id: slotItem.id,
+                            p_student_name: name,
+                            p_tg_username: tgUser,
+                            p_grade: gradeLabel(),
+                            p_topics: state.topics,
+                            p_custom_topic: state.customTopic,
+                            p_goal: state.goal,
+                            p_tariff: state.tariff,
+                            p_slot_snapshot: combinedSlotsLabel
+                        });
+                        if (error || (data && !data.success)) {
+                            failedSlots.push(slotItem.label);
+                        }
+                    } catch (e) {
+                        failedSlots.push(slotItem.label);
+                    }
+                }
 
-                if (error || (data && !data.success)) {
-                    showToast(data?.error || 'Не удалось записаться: возможно, слот только что заняли. Выберите другой.');
-                    state.selectedSlotId = null;
+                resetBtn();
+                if (failedSlots.length > 0) {
+                    showToast(`Кто-то успел занять слот: ${failedSlots.join(', ')}. Пожалуйста, выберите другое окно.`);
                     await loadClientSlots();
                     return;
                 }
             } else {
                 const slots = JSON.parse(localStorage.getItem('lv_tutor_slots') || '[]');
-                const target = slots.find(s => s.id === state.selectedSlotId);
-                if (!target || target.is_booked) {
-                    resetBtn();
-                    showToast('Этот слот только что забрали. Выберите другое окно.');
-                    state.selectedSlotId = null;
-                    await loadClientSlots();
-                    return;
+                for (const slotItem of state.selectedSlots) {
+                    const target = slots.find(s => s.id === slotItem.id);
+                    if (!target || target.is_booked) {
+                        resetBtn();
+                        showToast(`Слот ${slotItem.label} только что забрали. Выберите другое окно.`);
+                        await loadClientSlots();
+                        return;
+                    }
                 }
-                target.is_booked = true;
-                target.booked_by_name = name;
-                target.booked_by_tg = tgUser;
+                state.selectedSlots.forEach(slotItem => {
+                    const target = slots.find(s => s.id === slotItem.id);
+                    if (target) {
+                        target.is_booked = true;
+                        target.booked_by_name = name;
+                        target.booked_by_tg = tgUser;
+                    }
+                });
                 localStorage.setItem('lv_tutor_slots', JSON.stringify(slots));
                 resetBtn();
             }
 
             const allTopics = [...state.topics, state.customTopic].filter(Boolean).join(', ');
+            const slotsHtmlList = state.selectedSlots.map((s, idx) => `${idx + 1}) ${esc(s.label)}`).join('<br>');
 
             document.getElementById('step4').classList.add('hidden');
             document.getElementById('successScreen').classList.remove('hidden');
             [1, 2, 3, 4].forEach(n => document.getElementById('pStep' + n).classList.replace('active', 'done'));
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            showToast('✓ Заявка отправлена Тории');
+            showToast('✓ Все слоты успешно забронированы!');
             try { tg?.HapticFeedback?.notificationOccurred('success'); } catch (e) {}
 
             document.getElementById('bookingSummaryText').innerHTML = `
-                <b>${esc(name)}</b><br>
-                📅 ${esc(state.selectedSlotLabel)}<br>
-                🎓 ${esc(gradeLabel())}<br>
-                💎 ${esc(state.tariff)}<br>
-                📚 ${esc(allTopics) || '—'}
+                <b>${esc(name)}</b> (${esc(gradeLabel())})<br>
+                💎 <b>${esc(state.tariff)}</b><br><br>
+                📅 <b>Забронированные слоты (${state.selectedSlots.length}):</b><br>
+                ${slotsHtmlList}<br><br>
+                📚 <b>Темы:</b> ${esc(allTopics) || '—'}
             `;
 
             lastBookingText =
-                `Привет, Тория! ✦ Записались через Math Atelier:\n` +
+                `Привет, Тория! ✦ Записались на неделю каникул через Math Atelier:\n` +
                 `👤 Ученик: ${name} (${gradeLabel()})\n` +
-                `📅 Слот: ${state.selectedSlotLabel}\n` +
-                `💎 Тариф: ${state.tariff}\n` +
+                `💎 Пакет: ${state.tariff}\n` +
+                `📅 Слоты: ${combinedSlotsLabel}\n` +
                 `📚 Темы: ${allTopics || '—'}`;
         }
 
-        // Необязательная кнопка «написать лично»
         function openTgChat(e) {
             e.preventDefault();
             const url = `https://t.me/${ADMIN_TG_USERNAME}`;
@@ -949,6 +1228,18 @@
         let adminSlots = [];
         const now0 = new Date();
         const adminCal = { y: now0.getFullYear(), m: now0.getMonth(), dates: new Set(), times: new Set() };
+
+        function selectHolidayWeekInCal() {
+            const year = new Date().getFullYear();
+            adminCal.y = year;
+            adminCal.m = 9; // Октябрь (0-indexed)
+            adminCal.dates.clear();
+            for (let day = 26; day <= 30; day++) {
+                adminCal.dates.add(`${year}-10-${pad(day)}`);
+            }
+            renderCalendar();
+            showToast('Выделены дни каникул: 26–30 октября. Выбери время ниже!');
+        }
 
         function calShift(delta) {
             adminCal.m += delta;
@@ -1098,8 +1389,19 @@
                 return false;
             }
             adminSlots = sortSlots(data.slots || []);
-            const leads = data.leads || [];
+            const rawLeads = data.leads || [];
             const journal = data.journal || [];
+
+            // Склеиваем мульти-слот заявки одного ученика в одну карточку
+            const seenLeadKeys = new Set();
+            const leads = [];
+            rawLeads.forEach(l => {
+                const key = `${l.student_name}|${l.tg_username}|${l.tariff}|${l.slot_snapshot}`;
+                if (!seenLeadKeys.has(key)) {
+                    seenLeadKeys.add(key);
+                    leads.push(l);
+                }
+            });
 
             renderCalendar();
             renderTimeChips();
@@ -1140,8 +1442,9 @@
                         ${handle ? `<a href="https://t.me/${handle}" target="_blank" style="color:var(--lv-gold); font-weight:700; font-size:13px;">${esc(l.tg_username)}</a>` : `<span style="font-size:13px;">${esc(l.tg_username)}</span>`}
                     </div>
                     <div style="font-size:12px; margin-top:6px;">
-                        <b>Класс:</b> ${esc(l.grade)} | <b>Слот:</b> <span style="color:var(--lv-success); font-weight:600;">${esc(l.slot_snapshot)}</span><br>
-                        <b>Тариф:</b> ${esc(l.tariff)}<br>
+                        <b>Класс:</b> ${esc(l.grade)}<br>
+                        <b>Пакет:</b> ${esc(l.tariff)}<br>
+                        <b>Слоты:</b> <span style="color:var(--lv-success); font-weight:600;">${esc(l.slot_snapshot)}</span><br>
                         <b>Цель:</b> ${esc(l.goal || '—')}<br>
                         <b>Темы:</b> ${esc(topicsStr || '—')}
                     </div>`;
