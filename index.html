@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TORIYA NOVA | Math Atelier</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --lv-dark: #1E140F;
+            --lv-brown: #322118;
+            --lv-gold: #C5A059;
+            --lv-gold-light: #DFC286;
+            --lv-cream: #FBF8F3;
+            --lv-sand: #F2ECE1;
+            --lv-text: #231711;
+            --lv-muted: #7A6A5E;
+            --lv-danger: #9E3B33;
+            --lv-success: #2E5A44;
+            --lv-warn: #B87314;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--lv-cream);
+            color: var(--lv-text);
+            line-height: 1.5;
+            padding-top: 72px;
+            padding-bottom: 50px;
+            background-image: radial-gradient(var(--lv-gold) 0.55px, transparent 0.55px);
+            background-size: 24px 24px;
+        }
+        body.modal-open { overflow: hidden; }
+
+        /* ЖЁСТКО ЗАКРЕПЛЁННАЯ ВЕРХНЯЯ ШАПКА */
+        .lv-header {
+            background: linear-gradient(145deg, var(--lv-dark) 0%, var(--lv-brown) 100%);
+            color: var(--lv-cream);
+            padding: 14px 18px 12px;
+            border-bottom: 2px solid var(--lv-gold);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+            box-shadow: 0 6px 20px rgba(30, 20, 15, 0.25);
+        }
+        .lv-header-top { display: flex; justify-content: space-between; align-items: center; max-width: 540px; margin: 0 auto; }
+        .lv-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 21px; font-weight: 700; letter-spacing: 2px;
+            color: var(--lv-gold); text-transform: uppercase;
+            user-select: none; cursor: pointer;
+        }
+        .lv-subtitle {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--lv-sand); margin-top: 2px; opacity: 0.85;
+        }
+        .admin-toggle-btn {
+            background: rgba(197, 160, 89, 0.15);
+            border: 1px solid var(--lv-gold); color: var(--lv-gold);
+            padding: 7px 13px; border-radius: 20px;
+            font-size: 11px; font-weight: 600; cursor: pointer; letter-spacing: 0.8px;
+            transition: all 0.2s;
+        }
+        .admin-toggle-btn.active { background: var(--lv-gold); color: var(--lv-dark); }
+        .container { max-width: 540px; margin: 0 auto; padding: 14px 14px; }
+
+        /* ЗАКРЕПЛЁННОЕ МЕНЮ ДАШБОРДА */
+        .admin-nav {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;
+            margin-bottom: 14px; background: var(--lv-sand); padding: 5px;
+            border-radius: 12px; border: 1px solid rgba(197, 160, 89, 0.5);
+            position: sticky; top: 70px; z-index: 250;
+            box-shadow: 0 6px 16px rgba(30, 20, 15, 0.12);
+        }
+        .admin-tab {
+            text-align: center; padding: 10px 4px; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; border-radius: 8px; cursor: pointer; color: var(--lv-muted);
+            white-space: nowrap; transition: 0.2s;
+        }
+        .admin-tab.active { background: var(--lv-dark); color: var(--lv-gold); }
+
+        /* ВСПЛЫВАЮЩИЕ ОКНА ПОВЕРХ ЭКРАНА С КРЕСТИКОМ ✕ */
+        .lv-modal-backdrop {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(20, 12, 8, 0.72);
+            backdrop-filter: blur(4px);
+            z-index: 900;
+            display: flex; align-items: center; justify-content: center;
+            padding: 12px;
+        }
+        .lv-modal-window {
+            background: var(--lv-cream);
+            border: 1.5px solid var(--lv-gold);
+            border-radius: 16px;
+            width: 100%; max-width: 500px;
+            max-height: 86vh;
+            display: flex; flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            animation: modalPop 0.16s ease-out;
+        }
+        @keyframes modalPop {
+            from { transform: translateY(10px) scale(0.97); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .lv-modal-header {
+            background: linear-gradient(145deg, var(--lv-dark) 0%, var(--lv-brown) 100%);
+            color: var(--lv-cream);
+            padding: 14px 16px;
+            border-bottom: 1.5px solid var(--lv-gold);
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
+            flex-shrink: 0;
+        }
+        .lv-modal-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px; font-weight: 700; color: var(--lv-gold-light);
+            line-height: 1.15;
+        }
+        .lv-modal-close {
+            width: 36px; height: 36px; border-radius: 50%;
+            border: 1.5px solid var(--lv-gold);
+            background: rgba(197, 160, 89, 0.2);
+            color: var(--lv-gold-light);
+            font-size: 17px; font-weight: 700;
+            cursor: pointer; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .lv-modal-close:active { transform: scale(0.92); background: var(--lv-gold); color: var(--lv-dark); }
+        .lv-modal-body {
+            padding: 16px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            flex: 1;
+        }
+
+        /* БАЗОВЫЕ СТИЛИ АНКЕТЫ */
+        .progress-bar { display: flex; justify-content: space-between; margin-bottom: 20px; position: relative; }
+        .progress-bar::before {
+            content: ''; position: absolute; top: 50%; left: 0; right: 0;
+            height: 1px; background: var(--lv-gold); opacity: 0.4; z-index: 1;
+        }
+        .progress-step {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: var(--lv-cream); border: 1px solid var(--lv-gold);
+            color: var(--lv-muted); display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 600; position: relative; z-index: 2; transition: 0.3s;
+        }
+        .progress-step.active {
+            background: var(--lv-dark); color: var(--lv-gold); border-color: var(--lv-gold);
+            box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.2);
+        }
+        .progress-step.done { background: var(--lv-gold); color: var(--lv-dark); }
+
+        .lv-card {
+            background: rgba(251, 248, 243, 0.96);
+            border: 1px solid rgba(197, 160, 89, 0.45);
+            border-radius: 14px; padding: 18px; margin-bottom: 16px;
+            box-shadow: 0 8px 25px rgba(30, 20, 15, 0.06);
+            position: relative; overflow: hidden;
+        }
+        .lv-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px; font-weight: 700; color: var(--lv-dark);
+            margin-bottom: 4px; letter-spacing: 0.4px;
+        }
+        .lv-desc { font-size: 12.5px; color: var(--lv-muted); margin-bottom: 14px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .lv-option {
+            background: #fff; border: 1px solid rgba(197, 160, 89, 0.4);
+            border-radius: 10px; padding: 12px 13px;
+            font-size: 13px; font-weight: 500; color: var(--lv-text);
+            cursor: pointer; transition: all 0.2s ease;
+            display: flex; align-items: center; justify-content: space-between; text-align: left;
+        }
+        .lv-option.selected {
+            background: var(--lv-dark); color: var(--lv-gold-light);
+            border-color: var(--lv-gold); font-weight: 600;
+            box-shadow: 0 4px 12px rgba(30, 20, 15, 0.18);
+        }
+        .lv-option .check-icon {
+            width: 18px; height: 18px; border: 1px solid var(--lv-gold); border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; flex-shrink: 0; margin-left: 8px;
+        }
+        .lv-option.selected .check-icon { background: var(--lv-gold); color: var(--lv-dark); }
+
+        .tariff-card {
+            background: #fff; border: 1.5px solid rgba(197, 160, 89, 0.4);
+            border-radius: 12px; padding: 16px; margin-bottom: 12px;
+            cursor: pointer; transition: 0.25s;
+        }
+        .tariff-card.selected {
+            background: linear-gradient(135deg, var(--lv-dark) 0%, var(--lv-brown) 100%);
+            color: var(--lv-cream); border-color: var(--lv-gold);
+            box-shadow: 0 8px 20px rgba(30, 20, 15, 0.22);
+        }
+        .tariff-badge {
+            display: inline-block; background: var(--lv-gold); color: var(--lv-dark);
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            padding: 3px 8px; border-radius: 4px; margin-bottom: 6px; letter-spacing: 0.8px;
+        }
+        .tariff-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+        .tariff-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; }
+        .tariff-price { font-size: 18px; font-weight: 700; color: var(--lv-gold); }
+        .tariff-sub { font-size: 12px; opacity: 0.8; }
+
+        .lv-input-group { margin-top: 12px; }
+        .lv-label {
+            display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.9px; color: var(--lv-muted); margin-bottom: 5px;
+        }
+        .lv-input, .lv-textarea, .lv-select {
+            width: 100%; padding: 11px 13px;
+            border: 1px solid rgba(197, 160, 89, 0.5); border-radius: 10px;
+            background: #fff; font-family: 'Montserrat', sans-serif;
+            font-size: 13px; color: var(--lv-text); outline: none;
+        }
+        .lv-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--lv-dark) 0%, var(--lv-brown) 100%);
+            color: var(--lv-gold-light); border: 1px solid var(--lv-gold);
+            padding: 13px 16px; border-radius: 10px;
+            font-family: 'Montserrat', sans-serif; font-size: 12.5px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 1.2px; cursor: pointer; transition: 0.25s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 6px 16px rgba(30, 20, 15, 0.18);
+        }
+        .lv-btn:disabled { opacity: 0.6; cursor: default; }
+        .lv-btn-secondary {
+            background: transparent; color: var(--lv-muted);
+            border: 1px solid rgba(197, 160, 89, 0.45); box-shadow: none;
+        }
+        .btn-row { display: flex; gap: 10px; margin-top: 16px; }
+
+        .slot-pill {
+            background: #fff; border: 1px solid var(--lv-gold); border-radius: 10px;
+            padding: 10px 6px; text-align: center; cursor: pointer; transition: 0.2s;
+        }
+        .slot-pill .day { font-size: 11px; color: var(--lv-muted); text-transform: uppercase; }
+        .slot-pill .time { font-size: 14px; font-weight: 700; color: var(--lv-dark); margin-top: 3px; }
+        .slot-pill.selected { background: var(--lv-dark); border-color: var(--lv-gold); }
+        .slot-pill.selected .day, .slot-pill.selected .time { color: var(--lv-gold-light); }
+
+        /* КАЛЕНДАРЬ */
+        .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .cal-head b { font-family: 'Cormorant Garamond', serif; font-size: 22px; }
+        .cal-nav {
+            width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--lv-gold);
+            background: #fff; color: var(--lv-dark); font-size: 17px; cursor: pointer;
+        }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .cal-wd { text-align: center; font-size: 10px; font-weight: 700; color: var(--lv-muted); text-transform: uppercase; padding: 4px 0; }
+        .cal-day {
+            aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #fff; border: 1px solid rgba(197, 160, 89, 0.38); border-radius: 10px;
+            font-size: 13px; font-weight: 600; cursor: pointer; position: relative; padding-bottom: 10px;
+            transition: 0.15s;
+        }
+        .cal-day:active { transform: scale(0.94); background: var(--lv-sand); }
+        .cal-day.today { border: 2px solid var(--lv-dark); font-weight: 700; }
+        .cal-day.empty { visibility: hidden; }
+        .cal-dots {
+            display: flex; gap: 3px; align-items: center; position: absolute; bottom: 4px;
+        }
+        .cal-badge-lessons {
+            background: var(--lv-success); color: #fff; font-size: 8.5px; font-weight: 700;
+            padding: 0 4px; border-radius: 6px; line-height: 12px;
+        }
+        .cal-badge-lessons.unpaid { background: var(--lv-warn); }
+        .cal-dot-free {
+            width: 5px; height: 5px; border-radius: 50%; background: var(--lv-gold);
+        }
+
+        .chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-height: 180px; overflow-y: auto; padding: 2px; }
+        .chip {
+            background: #fff; border: 1px solid rgba(197, 160, 89, 0.5); border-radius: 8px;
+            padding: 8px 0; text-align: center; font-size: 12px; font-weight: 600; cursor: pointer;
+        }
+        .chip.sel { background: var(--lv-dark); color: var(--lv-gold-light); border-color: var(--lv-gold); }
+
+        /* КАРТОЧКИ УЧЕНИКОВ ПО ИМЕНАМ */
+        .student-card {
+            background: #fff;
+            border: 1px solid rgba(197, 160, 89, 0.45);
+            border-left: 5px solid var(--lv-gold);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .student-card:active { transform: scale(0.99); }
+        .student-card.expired { border-left-color: var(--lv-danger); }
+        .student-card.active-paid { border-left-color: var(--lv-success); }
+
+        /* ЛИНИЯ ОТСЕЧКИ ОПЛАТЫ */
+        .payment-cutoff-divider {
+            margin: 10px 0;
+            padding: 8px 10px;
+            background: rgba(158, 59, 51, 0.12);
+            border: 1.5px dashed var(--lv-danger);
+            border-radius: 8px;
+            color: var(--lv-danger);
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* ПАНЕЛЬ ПЕРЕНОСА УРОКА */
+        .reschedule-box {
+            margin-top: 8px;
+            padding: 10px;
+            background: var(--lv-sand);
+            border: 1px solid var(--lv-gold);
+            border-radius: 8px;
+        }
+
+        .admin-item {
+            background: #fff; border: 1px solid rgba(197, 160, 89, 0.38);
+            border-radius: 10px; padding: 11px 13px; margin-bottom: 8px;
+        }
+        .badge-status {
+            display: inline-block; padding: 3px 8px; border-radius: 6px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+        }
+        .badge-paid { background: rgba(46, 90, 68, 0.14); color: var(--lv-success); border: 1px solid rgba(46, 90, 68, 0.35); }
+        .badge-unpaid { background: rgba(184, 115, 20, 0.14); color: var(--lv-warn); border: 1px solid rgba(184, 115, 20, 0.4); }
+        .badge-expired { background: rgba(158, 59, 51, 0.14); color: var(--lv-danger); border: 1px solid rgba(158, 59, 51, 0.35); }
+
+        .mini-btn {
+            padding: 5px 9px; font-size: 11px; font-weight: 600;
+            border: 1px solid var(--lv-gold); background: #fff; color: var(--lv-dark);
+            border-radius: 7px; cursor: pointer;
+        }
+        .mini-btn.dark { background: var(--lv-dark); color: var(--lv-gold-light); }
+        .mini-btn.danger { border-color: #ddd; color: var(--lv-danger); }
+
+        .wd-picker { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 4px; }
+        .wd-chip {
+            padding: 7px 0; text-align: center; font-size: 11px; font-weight: 700;
+            background: #fff; border: 1px solid rgba(197, 160, 89, 0.5); border-radius: 7px; cursor: pointer;
+        }
+        .wd-chip.sel { background: var(--lv-dark); color: var(--lv-gold-light); border-color: var(--lv-gold); }
+
+        .hidden { display: none !important; }
+        .toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--lv-dark); color: var(--lv-gold); border: 1px solid var(--lv-gold);
+            padding: 12px 20px; border-radius: 30px; font-size: 12px; font-weight: 600;
+            z-index: 1100; box-shadow: 0 8px 25px rgba(0,0,0,0.35); text-align: center; max-width: 92%;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="lv-header">
+        <div class="lv-header-top">
+            <div>
+                <div class="lv-brand" onclick="handleSecretLogoTap()">✦ TORIYA NOVA ✦</div>
+                <div class="lv-subtitle">Math Atelier & Architecture • @toriya_nova</div>
+            </div>
+            <button id="adminToggleBtn" class="admin-toggle-btn hidden" onclick="toggleAdminView()">♛ Дашборд</button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- ================= КЛИЕНТСКАЯ АНКЕТА ================= -->
+        <div id="clientView">
+            <div class="progress-bar">
+                <div class="progress-step active" id="pStep1">I</div>
+                <div class="progress-step" id="pStep2">II</div>
+                <div class="progress-step" id="pStep3">III</div>
+                <div class="progress-step" id="pStep4">IV</div>
+            </div>
+
+            <div id="step1" class="lv-card">
+                <div class="lv-title">I. Диагностика: Класс и цель</div>
+                <div class="lv-desc">Выберите класс ученика. С 7 класса математика делится на алгебру и геометрию — выберите нужный предмет:</div>
+
+                <label class="lv-label">Класс</label>
+                <div class="grid-3" id="gradeList"></div>
+
+                <div id="subjectBlock" class="hidden" style="margin-top: 18px;">
+                    <label class="lv-label">Предмет (можно выбрать оба)</label>
+                    <div class="grid-2" id="subjectList"></div>
+                </div>
+
+                <div class="lv-input-group" style="margin-top: 20px;">
+                    <label class="lv-label">Главная задача сейчас:</label>
+                    <select id="goalSelect" class="lv-select">
+                        <option value="Подтянуть текущую успеваемость и оценки">Подтянуть текущую успеваемость и оценки</option>
+                        <option value="Убрать страх перед математикой и закрыть пробелы">Убрать страх перед предметом и закрыть пробелы</option>
+                        <option value="Помощь с домашними заданиями и контрольными">Помощь с домашками и контрольными</option>
+                        <option value="Системная подготовка к экзаменам (ОГЭ/ЕГЭ)">Системная подготовка к экзаменам</option>
+                        <option value="Углубленная математика на опережение">Углубленная математика на опережение</option>
+                    </select>
+                </div>
+
+                <div class="btn-row">
+                    <button class="lv-btn" onclick="goToStep(2)">Далее к темам ➔</button>
+                </div>
+            </div>
+
+            <div id="step2" class="lv-card hidden">
+                <div class="lv-title">II. Какие темы вызывают сложности?</div>
+                <div class="lv-desc">Можно выбрать <b>несколько вариантов</b> из списка или вписать свою тему ниже:</div>
+
+                <div id="topicsContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
+
+                <div class="lv-input-group">
+                    <label class="lv-label">Свой вариант / комментарий по темам (необязательно):</label>
+                    <textarea id="customTopicInput" class="lv-textarea" rows="2" placeholder="Например: путается в знаках при раскрытии скобок, нужна геометрия с нуля..."></textarea>
+                </div>
+
+                <div class="btn-row">
+                    <button class="lv-btn lv-btn-secondary" style="width: 40%;" onclick="goToStep(1)">Назад</button>
+                    <button class="lv-btn" style="width: 60%;" onclick="goToStep(3)">К тарифам ➔</button>
+                </div>
+            </div>
+
+            <div id="step3" class="lv-card hidden">
+                <div class="lv-title">III. Формат и стоимость занятий</div>
+                <div class="lv-desc">Выберите разовый урок-диагностику или выгодный абонемент с закреплением времени:</div>
+
+                <div class="tariff-card selected" onclick="selectTariff('Разовое занятие — 350.000 ₫', this)">
+                    <span class="tariff-badge">Старт и диагностика</span>
+                    <div class="tariff-header">
+                        <div class="tariff-name">1 Занятие (Индивидуально)</div>
+                        <div class="tariff-price">350.000 ₫</div>
+                    </div>
+                    <div class="tariff-sub">Разбор сложной темы, полная диагностика знаний и план обучения (350k VND).</div>
+                </div>
+
+                <div class="tariff-card" onclick="selectTariff('Абонемент 4 урока — 1.300.000 ₫', this)">
+                    <span class="tariff-badge">Популярный выбор</span>
+                    <div class="tariff-header">
+                        <div class="tariff-name">Абонемент • 4 занятия</div>
+                        <div class="tariff-price">1.300.000 ₫</div>
+                    </div>
+                    <div class="tariff-sub">325.000 ₫ за урок. Фиксация постоянного слота в расписании + проверка ДЗ.</div>
+                </div>
+
+                <div class="tariff-card" onclick="selectTariff('Абонемент 8 уроков — 2.400.000 ₫', this)">
+                    <span class="tariff-badge">Максимальный результат</span>
+                    <div class="tariff-header">
+                        <div class="tariff-name">Абонемент • 8 занятий</div>
+                        <div class="tariff-price">2.400.000 ₫</div>
+                    </div>
+                    <div class="tariff-sub">300.000 ₫ за урок (выгода 400k ₫). Полное ведение ученика и связь в Telegram @toriya_nova.</div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="lv-btn lv-btn-secondary" style="width: 40%;" onclick="goToStep(2)">Назад</button>
+                    <button class="lv-btn" style="width: 60%;" onclick="goToStep(4)">Выбрать время ➔</button>
+                </div>
+            </div>
+
+            <div id="step4" class="lv-card hidden">
+                <div class="lv-title">IV. Выберите день и время</div>
+                <div class="lv-desc">Сначала день, затем свободное время. Выбранный слот сразу закрывается за вами.</div>
+
+                <label class="lv-label">День</label>
+                <div id="daysRow" class="grid-3" style="margin-bottom: 14px;"></div>
+
+                <div id="timesWrap" class="hidden">
+                    <label class="lv-label">Время (Вьетнам)</label>
+                    <div id="timesGrid" class="grid-3" style="margin-bottom: 14px;"></div>
+                </div>
+
+                <div class="lv-input-group">
+                    <label class="lv-label">Имя ученика / родителя *</label>
+                    <input type="text" id="clientName" class="lv-input" placeholder="Например: Анна (сын Марк)">
+                </div>
+
+                <div class="lv-input-group">
+                    <label class="lv-label">Ваш Telegram (@username или телефон) *</label>
+                    <input type="text" id="clientTg" class="lv-input" placeholder="@username">
+                </div>
+
+                <div class="btn-row">
+                    <button class="lv-btn lv-btn-secondary" style="width: 35%;" onclick="goToStep(3)">Назад</button>
+                    <button class="lv-btn" id="submitBookingBtn" style="width: 65%;" onclick="submitBooking()">✦ Записаться</button>
+                </div>
+            </div>
+
+            <div id="successScreen" class="lv-card hidden" style="text-align: center; padding: 32px 20px;">
+                <div style="font-size: 46px; color: var(--lv-success); margin-bottom: 6px;">✓</div>
+                <div class="lv-title" style="font-size: 26px;">Заявка отправлена!</div>
+                <p class="lv-desc" style="margin-top: 6px;">Тория получила вашу запись и свяжется с вами в Telegram.</p>
+                <p class="lv-desc" id="bookingSummaryText" style="font-size: 14px; color: var(--lv-text); text-align: left; background: var(--lv-sand); padding: 14px; border-radius: 10px;"></p>
+                <a id="directTgLink" href="https://t.me/toriya_nova" target="_blank" class="lv-btn lv-btn-secondary" style="text-decoration: none; margin-top: 6px;" onclick="return openTgChat(event)">
+                    Написать Тории лично
+                </a>
+            </div>
+        </div>
+
+        <!-- ВХОД В АДМИНКУ -->
+        <div id="adminAuthModal" class="lv-card hidden">
+            <div class="lv-title">♛ Вход для @toriya_nova</div>
+            <div class="lv-desc">Введи секретный ключ администратора:</div>
+            <input type="password" id="adminSecretInput" class="lv-input" placeholder="Секретный ключ">
+            <div class="btn-row">
+                <button class="lv-btn lv-btn-secondary" style="width:40%;" onclick="closeAdminAuth()">Отмена</button>
+                <button class="lv-btn" style="width:60%;" onclick="unlockAdminDashboard()">Войти</button>
+            </div>
+        </div>
+
+        <!-- ================= ДАШБОРД ТОРИИ ================= -->
+        <div id="adminView" class="hidden">
+
+            <div class="admin-nav">
+                <div class="admin-tab active" id="tabBtnCalendar" onclick="switchAdminTab('calendar')">📅 Календарь</div>
+                <div class="admin-tab" id="tabBtnStudents" onclick="switchAdminTab('students')">👩‍🎓 По именам</div>
+                <div class="admin-tab" id="tabBtnLeads" onclick="switchAdminTab('leads')">🔥 Заявки</div>
+            </div>
+
+            <!-- ВКЛАДКА 1: ЧИСТЫЙ КАЛЕНДАРЬ (БЕЗ ПРОСТЫНИ СЛОТОВ) -->
+            <div id="adminTabCalendar">
+                <div class="lv-card">
+                    <div class="lv-title">Календарь занятий</div>
+                    <div class="lv-desc">
+                        Нажми на любой день — откроется окно с детьми на эту дату (закрывается на ✕).<br>
+                        <span style="display:inline-block; margin-top:4px; font-size:11px;">
+                            <b style="color:var(--lv-success);">■ Зелёный</b> — уроки оплачены •
+                            <b style="color:var(--lv-warn);">■ Рыжий</b> — есть урок без оплаты •
+                            <b style="color:var(--lv-gold);">● Точка</b> — открыты окна
+                        </span>
+                    </div>
+
+                    <div class="cal-head">
+                        <button class="cal-nav" onclick="calShift(-1)">‹</button>
+                        <b id="calTitle"></b>
+                        <button class="cal-nav" onclick="calShift(1)">›</button>
+                    </div>
+                    <div id="calGrid" class="cal-grid"></div>
+
+                    <div class="btn-row" style="margin-top: 16px;">
+                        <button type="button" class="lv-btn" onclick="openBatchSlotsModal()">
+                            ➕ Открыть свободные окна для анкеты
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ВКЛАДКА 2: ДЕТИ ПО ИМЕНАМ + УРОКИ И ДАТА ОПЛАТЫ -->
+            <div id="adminTabStudents" class="hidden">
+                <div class="lv-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px;">
+                        <div>
+                            <div class="lv-title" style="margin:0;">Дети по именам</div>
+                            <div class="lv-desc" style="margin:2px 0 0;">При переносе урока дата «Оплачено до…» сдвигается автоматически:</div>
+                        </div>
+                        <button type="button" class="mini-btn dark" style="white-space:nowrap; padding:9px 12px;" onclick="openNewStudentModal()">+ Ребёнок</button>
+                    </div>
+
+                    <div id="studentsListContainer"></div>
+                </div>
+            </div>
+
+            <!-- ВКЛАДКА 3: ВХОДЯЩИЕ ЗАЯВКИ -->
+            <div id="adminTabLeads" class="hidden">
+                <div class="lv-card">
+                    <div class="lv-title">Заявки из анкеты</div>
+                    <div class="lv-desc">Нажми на имя в заявке, чтобы открыть карточку ребёнка и задать оплату:</div>
+                    <div id="adminLeadsList"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= ОКНО 1: КТО ЗАПИСАН В ВЫБРАННЫЙ ДЕНЬ (С КРЕСТИКОМ ✕) ================= -->
+    <div id="dayModalBackdrop" class="lv-modal-backdrop hidden" onclick="if(event.target===this) closeDayModal()">
+        <div class="lv-modal-window">
+            <div class="lv-modal-header">
+                <div>
+                    <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--lv-gold);">Кто у меня в этот день</div>
+                    <div class="lv-modal-title" id="dayModalTitle">—</div>
+                </div>
+                <button type="button" class="lv-modal-close" onclick="closeDayModal()" aria-label="Закрыть">✕</button>
+            </div>
+            <div class="lv-modal-body">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span class="lv-label" style="margin:0;">Записанные ученики</span>
+                    <button type="button" class="mini-btn dark" onclick="toggleQuickAddOnDay()">+ Записать на этот день</button>
+                </div>
+
+                <!-- Мини-форма: быстро поставить ребёнка на этот день -->
+                <div id="quickAddDayForm" class="hidden" style="background:var(--lv-sand); padding:12px; border-radius:10px; margin-bottom:12px; border:1px solid var(--lv-gold);">
+                    <div class="grid-2">
+                        <div>
+                            <label class="lv-label">Имя ребёнка *</label>
+                            <input type="text" id="qDayStudentName" list="existingStudentsDatalist" class="lv-input" style="padding:9px;" placeholder="Напр. Марк">
+                            <datalist id="existingStudentsDatalist"></datalist>
+                        </div>
+                        <div>
+                            <label class="lv-label">Время урока</label>
+                            <select id="qDayTimeSelect" class="lv-select" style="padding:9px;"></select>
+                        </div>
+                    </div>
+                    <div class="grid-2" style="margin-top:8px;">
+                        <div>
+                            <label class="lv-label">Длительность</label>
+                            <select id="qDayDuration" class="lv-select" style="padding:9px;">
+                                <option value="45">45 мин</option>
+                                <option value="60" selected>60 мин</option>
+                                <option value="90">90 мин</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="lv-label">Тема / заметка</label>
+                            <input type="text" id="qDayNote" class="lv-input" style="padding:9px;" placeholder="Необязательно">
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px; margin-top:10px;">
+                        <button type="button" class="mini-btn" style="flex:1;" onclick="toggleQuickAddOnDay(false)">Отмена</button>
+                        <button type="button" id="qDaySaveBtn" class="mini-btn dark" style="flex:2; padding:9px;" onclick="saveQuickLessonOnDay()">✓ Поставить в расписание</button>
+                    </div>
+                </div>
+
+                <div id="dayModalBookedList"></div>
+
+                <div style="margin-top:16px; padding-top:12px; border-top:1px solid rgba(197,160,89,0.35);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span class="lv-label" style="margin:0;">Свободные окна для анкеты в этот день</span>
+                        <button type="button" class="mini-btn" onclick="quickAddFreeSlotOnActiveDay()">+ Открыть час</button>
+                    </div>
+                    <div id="dayModalFreeList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ОКНО 2: КАРТОЧКА РЕБЁНКА + СВЯЗКА УРОКОВ И ДАТЫ ОПЛАТЫ (С КРЕСТИКОМ ✕) ================= -->
+    <div id="studentModalBackdrop" class="lv-modal-backdrop hidden" onclick="if(event.target===this) closeStudentModal()">
+        <div class="lv-modal-window">
+            <div class="lv-modal-header">
+                <div>
+                    <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--lv-gold);">Карточка ученика</div>
+                    <div class="lv-modal-title" id="stModalTitle">Имя ученика</div>
+                </div>
+                <button type="button" class="lv-modal-close" onclick="closeStudentModal()" aria-label="Закрыть">✕</button>
+            </div>
+            <div class="lv-modal-body">
+
+                <!-- 1. СВЯЗКА: ОПЛАЧЕННЫЕ УРОКИ ↔ ДО КАКОГО ЧИСЛА ОПЛАЧЕНО -->
+                <div style="background:var(--lv-sand); border:1.5px solid var(--lv-gold); border-radius:12px; padding:13px; margin-bottom:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+                        <span class="lv-label" style="margin:0; color:var(--lv-dark);">💳 Оплата (связка уроков и даты):</span>
+                        <span id="stModalPayBadge" class="badge-status badge-unpaid">—</span>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <label class="lv-label">Оплачено уроков (остаток)</label>
+                            <div style="display:flex; gap:4px; align-items:center;">
+                                <button type="button" class="mini-btn" style="padding:9px 11px; font-weight:700;" onclick="adjustStudentPaidLessons(-1)">−</button>
+                                <input type="number" id="stPaidLessonsInput" min="0" class="lv-input" style="padding:9px; text-align:center; font-weight:700; font-size:15px;" value="0" onchange="onManualLessonsCountChange()">
+                                <button type="button" class="mini-btn" style="padding:9px 11px; font-weight:700;" onclick="adjustStudentPaidLessons(1)">+</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="lv-label">Авто-дата «Оплачено до»</label>
+                            <input type="date" id="stPaidUntilInput" class="lv-input" style="padding:9px; font-weight:700;" onchange="onManualPaidUntilDateChange()">
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:8px;">
+                        <button type="button" class="mini-btn dark" onclick="adjustStudentPaidLessons(4)">+4 урока (абонемент)</button>
+                        <button type="button" class="mini-btn dark" onclick="adjustStudentPaidLessons(8)">+8 уроков</button>
+                        <button type="button" class="mini-btn" onclick="adjustStudentPaidLessons(1)">+1 урок</button>
+                        <button type="button" class="mini-btn danger" onclick="resetStudentPayment()">Сбросить (0)</button>
+                    </div>
+
+                    <div style="font-size:11px; color:var(--lv-muted); margin-top:7px;">
+                        💡 При переносе или пропуске урока дата «Оплачено до» сдвигается сама по числу оставшихся уроков.
+                    </div>
+
+                    <div class="grid-2" style="margin-top:8px;">
+                        <input type="text" id="stGradeInput" class="lv-input" style="padding:8px; font-size:12px;" placeholder="Класс (напр. 6 класс)" onchange="saveStudentMetaFields()">
+                        <input type="text" id="stTgInput" class="lv-input" style="padding:8px; font-size:12px;" placeholder="@telegram родителя" onchange="saveStudentMetaFields()">
+                    </div>
+                </div>
+
+                <!-- 2. ПО КАКИМ ДНЯМ ХОДИТ РЕБЁНОК + ПЕРЕНОС И СДВИГ -->
+                <div style="margin-bottom:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span class="lv-label" style="margin:0;">📅 Расписание ребёнка (с авто-границей оплаты)</span>
+                        <button type="button" class="mini-btn dark" onclick="toggleStudentScheduleBuilder()">+ Поставить дни</button>
+                    </div>
+
+                    <!-- Конструктор расписания ребёнка -->
+                    <div id="stScheduleBuilder" class="hidden" style="background:#fff; border:1px dashed var(--lv-gold); border-radius:10px; padding:12px; margin-bottom:10px;">
+                        <div style="font-size:11.5px; font-weight:700; margin-bottom:6px;">Выбери дни недели, в которые занимается ребёнок:</div>
+                        <div class="wd-picker" id="stWdPicker">
+                            <div class="wd-chip" data-wd="1" onclick="this.classList.toggle('sel')">Пн</div>
+                            <div class="wd-chip" data-wd="2" onclick="this.classList.toggle('sel')">Вт</div>
+                            <div class="wd-chip" data-wd="3" onclick="this.classList.toggle('sel')">Ср</div>
+                            <div class="wd-chip" data-wd="4" onclick="this.classList.toggle('sel')">Чт</div>
+                            <div class="wd-chip" data-wd="5" onclick="this.classList.toggle('sel')">Пт</div>
+                            <div class="wd-chip" data-wd="6" onclick="this.classList.toggle('sel')">Сб</div>
+                            <div class="wd-chip" data-wd="0" onclick="this.classList.toggle('sel')">Вс</div>
+                        </div>
+                        <div class="grid-2" style="margin-top:8px;">
+                            <div>
+                                <label class="lv-label">Время урока</label>
+                                <select id="stBuilderTime" class="lv-select" style="padding:8px;"></select>
+                            </div>
+                            <div>
+                                <label class="lv-label">На сколько недель</label>
+                                <select id="stBuilderWeeks" class="lv-select" style="padding:8px;">
+                                    <option value="1">На 1 неделю</option>
+                                    <option value="2">На 2 недели</option>
+                                    <option value="4" selected>На 4 недели</option>
+                                    <option value="8">На 8 недель</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" id="stBuilderRunBtn" class="mini-btn dark" style="width:100%; margin-top:8px; padding:9px;" onclick="addRecurringLessonsForStudent()">
+                            ✓ Поставить выбранные дни в календарь
+                        </button>
+                    </div>
+
+                    <div id="stModalLessonsList"></div>
+                </div>
+
+                <!-- 3. ДЗ И ТЕМЫ -->
+                <div style="border-top:1px solid rgba(197,160,89,0.35); padding-top:12px;">
+                    <label class="lv-label">📚 Темы и домашнее задание</label>
+                    <input type="text" id="stLastTopicInput" class="lv-input" style="padding:9px; margin-bottom:6px;" placeholder="Какую тему разбираете...">
+                    <textarea id="stHomeworkInput" class="lv-textarea" rows="2" style="padding:9px;" placeholder="Что задано на дом..."></textarea>
+                    <div style="display:flex; justify-content:space-between; gap:8px; margin-top:8px;">
+                        <button type="button" class="mini-btn danger" onclick="deleteStudentProfileCompletely()">Удалить карточку</button>
+                        <button type="button" class="mini-btn dark" onclick="saveStudentMetaFields(true)">✓ Сохранить ДЗ и заметки</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ОКНО 3: ОТКРЫТЬ СВОБОДНЫЕ ОКНА ДЛЯ АНКЕТЫ (С КРЕСТИКОМ ✕) ================= -->
+    <div id="batchSlotsModalBackdrop" class="lv-modal-backdrop hidden" onclick="if(event.target===this) closeBatchSlotsModal()">
+        <div class="lv-modal-window">
+            <div class="lv-modal-header">
+                <div>
+                    <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--lv-gold);">Для самозаписи</div>
+                    <div class="lv-modal-title">Открыть свободные окна</div>
+                </div>
+                <button type="button" class="lv-modal-close" onclick="closeBatchSlotsModal()" aria-label="Закрыть">✕</button>
+            </div>
+            <div class="lv-modal-body">
+                <div class="lv-desc">Отметь дни недели и часы, которые будут видны новым клиентам в анкете:</div>
+
+                <label class="lv-label">Дни недели</label>
+                <div class="wd-picker" id="batchWdPicker" style="margin-bottom:12px;">
+                    <div class="wd-chip" data-wd="1" onclick="this.classList.toggle('sel')">Пн</div>
+                    <div class="wd-chip" data-wd="2" onclick="this.classList.toggle('sel')">Вт</div>
+                    <div class="wd-chip" data-wd="3" onclick="this.classList.toggle('sel')">Ср</div>
+                    <div class="wd-chip" data-wd="4" onclick="this.classList.toggle('sel')">Чт</div>
+                    <div class="wd-chip" data-wd="5" onclick="this.classList.toggle('sel')">Пт</div>
+                    <div class="wd-chip" data-wd="6" onclick="this.classList.toggle('sel')">Сб</div>
+                    <div class="wd-chip" data-wd="0" onclick="this.classList.toggle('sel')">Вс</div>
+                </div>
+
+                <label class="lv-label">Время начала (можно несколько)</label>
+                <div id="timeChips" class="chips"></div>
+
+                <div class="grid-2" style="margin-top: 12px;">
+                    <div>
+                        <label class="lv-label">Длительность</label>
+                        <select id="slotDuration" class="lv-select">
+                            <option value="45">45 мин</option>
+                            <option value="60" selected>60 мин</option>
+                            <option value="90">90 мин</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="lv-label">На сколько недель</label>
+                        <select id="repeatWeeks" class="lv-select">
+                            <option value="1" selected>На 1 неделю</option>
+                            <option value="2">На 2 недели</option>
+                            <option value="4">На 4 недели</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="createSlotsBtn" class="lv-btn" style="margin-top: 14px;" onclick="createBatchFreeSlots()">+ Открыть слоты</button>
+                <button type="button" class="lv-btn lv-btn-secondary" style="margin-top: 8px; padding:10px;" onclick="cleanPastSlots()">Очистить прошедшие пустые окна</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script>
+        // ================= КОНФИГУРАЦИЯ =================
+        const SUPABASE_URL = "https://migxmipioqekbsuosqek.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_8czdqVj9CIhzmV4lzDmAnA_u4PNV6PD";
+        const ADMIN_TG_USERNAME = "toriya_nova";
+        const SYS_CRM_KEY = "__SYS_CRM_V2__";
+
+        let sb = null;
+        try {
+            if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
+                sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (e) { console.error('Supabase init error', e); }
+
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const normName = s => String(s || '').trim().toLowerCase();
+
+        let adminSecretKey = localStorage.getItem('lv_admin_secret_key') || '';
+
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            try { tg.ready(); tg.expand(); } catch (e) {}
+            const user = tg.initDataUnsafe?.user;
+            if (user) {
+                if (user.first_name) document.getElementById('clientName').value = user.first_name;
+                if (user.username) {
+                    document.getElementById('clientTg').value = '@' + user.username;
+                    if (user.username.toLowerCase() === ADMIN_TG_USERNAME.toLowerCase()) {
+                        document.getElementById('adminToggleBtn').classList.remove('hidden');
+                    }
+                }
+            }
+        }
+        if (adminSecretKey) {
+            document.getElementById('adminToggleBtn').classList.remove('hidden');
+        }
+
+        function syncBodyModalLock() {
+            const anyOpen = ['dayModalBackdrop', 'studentModalBackdrop', 'batchSlotsModalBackdrop'].some(
+                id => !document.getElementById(id).classList.contains('hidden')
+            );
+            document.body.classList.toggle('modal-open', anyOpen);
+        }
+
+        let logoTapCount = 0, logoTapTimer = null;
+        function handleSecretLogoTap() {
+            logoTapCount++;
+            clearTimeout(logoTapTimer);
+            logoTapTimer = setTimeout(() => { logoTapCount = 0; }, 1500);
+            if (logoTapCount >= 5) {
+                logoTapCount = 0;
+                document.getElementById('adminToggleBtn').classList.remove('hidden');
+                toggleAdminView();
+            }
+        }
+
+        // ================= ДАТЫ =================
+        const WD = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+        const MON = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+        const MON_FULL = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+        const pad = n => String(n).padStart(2, '0');
+        const fmtDay = d => `${WD[d.getDay()]}, ${d.getDate()} ${MON[d.getMonth()]}`;
+        const isoKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        const todayStart = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+
+        function fmtIsoHuman(isoStr) {
+            if (!isoStr) return '';
+            const parts = String(isoStr).split('-').map(Number);
+            if (parts.length !== 3 || !parts[0]) return isoStr;
+            const d = new Date(parts[0], parts[1] - 1, parts[2]);
+            return `${d.getDate()} ${MON[d.getMonth()]}`;
+        }
+
+        function parseSlotDate(label) {
+            const m = String(label || '').match(/(\d{1,2})\s+([А-Яа-яЁё]{3,})/);
+            if (!m) return null;
+            const mon = MON.indexOf(m[2].slice(0, 3).toLowerCase());
+            if (mon < 0) return null;
+            const now = new Date();
+            let d = new Date(now.getFullYear(), mon, parseInt(m[1], 10));
+            if (d < new Date(now.getTime() - 200 * 86400000)) d = new Date(now.getFullYear() + 1, mon, parseInt(m[1], 10));
+            return d;
+        }
+        const isPastSlot = s => { const d = parseSlotDate(s.day_label); return !!d && d < todayStart(); };
+        function sortSlots(arr) {
+            const key = s => { const d = parseSlotDate(s.day_label); return d ? d.getTime() : Infinity; };
+            return [...arr].sort((a, b) => key(a) - key(b) || String(a.time_range).localeCompare(String(b.time_range)));
+        }
+        function addMin(t, dur) {
+            const [h, m] = t.split(':').map(Number);
+            const total = (h * 60 + m + dur) % 1440;
+            return `${pad(Math.floor(total / 60))}:${pad(total % 60)}`;
+        }
+
+        // ================= ТЕМЫ ДЛЯ КЛИЕНТСКОЙ АНКЕТЫ =================
+        const TOPICS = {
+            1: { 'Математика': ['Счёт и состав числа до 20', 'Сложение и вычитание в пределах 20', 'Простые задачи в одно действие', 'Геометрические фигуры, сравнение чисел', 'Длина, время, меры'] },
+            2: { 'Математика': ['Таблица умножения и деления', 'Сложение и вычитание до 100', 'Порядок действий и скобки', 'Задачи в два действия', 'Периметр и единицы измерения'] },
+            3: { 'Математика': ['Внетабличное умножение и деление', 'Деление с остатком', 'Задачи на цену, время, скорость', 'Площадь и периметр', 'Доли и дроби'] },
+            4: { 'Математика': ['Многозначные числа и действия с ними', 'Задачи на движение', 'Величины: масса, время, длина', 'Площадь и объём', 'Уравнения и доли'] },
+            5: { 'Математика': ['Натуральные числа и действия с ними', 'Делимость, НОД и НОК', 'Обыкновенные дроби', 'Десятичные дроби', 'Уравнения и текстовые задачи'] },
+            6: { 'Математика': ['Отношения, пропорции, проценты', 'Положительные и отрицательные числа', 'Рациональные числа и действия', 'Раскрытие скобок, линейные уравнения', 'Координатная плоскость'] },
+            7: {
+                'Алгебра': ['Выражения и степень с натуральным показателем', 'Одночлены и многочлены', 'Формулы сокращённого умножения (ФСУ)', 'Линейная функция и её график', 'Системы линейных уравнений'],
+                'Геометрия': ['Точки, прямые, отрезки, углы', 'Смежные и вертикальные углы', 'Признаки равенства треугольников', 'Параллельные прямые', 'Сумма углов треугольника']
+            },
+            8: {
+                'Алгебра': ['Алгебраические дроби', 'Квадратные корни', 'Квадратные уравнения', 'Неравенства', 'Функции и графики (y=k/x, y=√x)'],
+                'Геометрия': ['Четырёхугольники', 'Площади фигур', 'Теорема Пифагора', 'Подобные треугольники', 'Окружность']
+            },
+            9: {
+                'Алгебра': ['Выражения и вычисления (ОГЭ)', 'Уравнения, неравенства, системы', 'Функции, графики, параболы', 'Прогрессии и текстовые задачи (№21)', 'Практические задачи ОГЭ (шины, участки, печи — №1–5)'],
+                'Геометрия': ['Векторы', 'Метод координат', 'Соотношения в треугольнике (синус, косинус)', 'Длина окружности и площадь круга', 'Задания 15–19 ОГЭ (чтобы не завалить)']
+            },
+            10: {
+                'Алгебра': ['Степени, корни, степенная функция', 'Тригонометрия: формулы и уравнения', 'Показательные и логарифмические уравнения', 'Производная и её применение', 'Функции и их графики'],
+                'Геометрия': ['Аксиомы стереометрии', 'Параллельность в пространстве', 'Перпендикулярность прямых и плоскостей', 'Многогранники: призма и пирамида', 'Углы и расстояния в пространстве']
+            },
+            11: {
+                'Алгебра': ['Производная и исследование функций', 'Показательные и логарифмические неравенства', 'Тригонометрические уравнения (отбор корней)', 'Финансовая математика (кредиты и вклады)', 'Задачи с параметром и сложные уравнения 2-й части'],
+                'Геометрия': ['Тела вращения: цилиндр, конус, шар', 'Объёмы тел', 'Сечения многогранников', 'Векторы и координаты в пространстве', 'Планиметрия во 2-й части ЕГЭ']
+            }
+        };
+
+        let state = {
+            grade: 0, subjects: [], goal: '', topics: [], customTopic: '',
+            tariff: 'Разовое занятие — 350.000 ₫',
+            selectedDay: null, selectedSlotId: null, selectedSlotLabel: ''
+        };
+
+        function gradeLabel() {
+            return `${state.grade} класс` + (state.grade > 6 ? ' • ' + state.subjects.join(' + ') : '');
+        }
+
+        function fallbackSlots() {
+            const out = [];
+            const base = todayStart();
+            for (let i = 1; i <= 6; i++) {
+                const d = new Date(base); d.setDate(d.getDate() + i);
+                ['15:00 - 16:00', '17:00 - 18:00'].forEach((t, k) => out.push({ id: `slot-${i}-${k}`, day_label: fmtDay(d), time_range: t, is_booked: false }));
+            }
+            return out;
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.remove('hidden');
+            clearTimeout(showToast._t);
+            showToast._t = setTimeout(() => t.classList.add('hidden'), 3500);
+        }
+
+        async function fetchPublicFreeSlots() {
+            if (sb) {
+                try {
+                    const { data, error } = await sb.from('tutor_slots')
+                        .select('id, day_label, time_range, is_booked')
+                        .eq('is_booked', false)
+                        .order('created_at', { ascending: true });
+                    if (!error && data) return data;
+                } catch (e) { console.error(e); }
+            }
+            let raw = localStorage.getItem('lv_tutor_slots');
+            if (!raw) { raw = JSON.stringify(fallbackSlots()); localStorage.setItem('lv_tutor_slots', raw); }
+            return JSON.parse(raw).filter(s => !s.is_booked);
+        }
+
+        // ================= ШАГИ КЛИЕНТА =================
+        function buildGradeList() {
+            const box = document.getElementById('gradeList');
+            box.innerHTML = '';
+            for (let n = 1; n <= 11; n++) {
+                const div = document.createElement('div');
+                div.className = 'lv-option';
+                div.style.justifyContent = 'center';
+                div.textContent = n === 9 ? '9 · ОГЭ' : n === 11 ? '11 · ЕГЭ' : String(n);
+                div.onclick = () => selectGrade(n, div);
+                box.appendChild(div);
+            }
+        }
+        buildGradeList();
+
+        function selectGrade(n, el) {
+            state.grade = n;
+            state.subjects = n <= 6 ? ['Математика'] : [];
+            state.topics = [];
+            document.querySelectorAll('#gradeList .lv-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            renderSubjects();
+        }
+
+        function renderSubjects() {
+            const wrap = document.getElementById('subjectBlock');
+            const box = document.getElementById('subjectList');
+            if (state.grade <= 6) { wrap.classList.add('hidden'); return; }
+            wrap.classList.remove('hidden');
+            box.innerHTML = '';
+            ['Алгебра', 'Геометрия'].forEach(sub => {
+                const div = document.createElement('div');
+                div.className = 'lv-option' + (state.subjects.includes(sub) ? ' selected' : '');
+                div.innerHTML = `<span>${sub}</span><span class="check-icon">✓</span>`;
+                div.onclick = () => {
+                    if (state.subjects.includes(sub)) {
+                        state.subjects = state.subjects.filter(x => x !== sub);
+                        state.topics = state.topics.filter(t => !t.startsWith(sub + ': '));
+                    } else {
+                        state.subjects.push(sub);
+                    }
+                    div.classList.toggle('selected');
+                };
+                box.appendChild(div);
+            });
+        }
+
+        function renderTopics() {
+            const container = document.getElementById('topicsContainer');
+            container.innerHTML = '';
+            state.subjects.forEach(sub => {
+                if (state.grade > 6) {
+                    const h = document.createElement('div');
+                    h.className = 'lv-label';
+                    h.style.margin = '8px 0 0';
+                    h.textContent = sub;
+                    container.appendChild(h);
+                }
+                (TOPICS[state.grade]?.[sub] || []).forEach(topic => {
+                    const val = state.grade > 6 ? `${sub}: ${topic}` : topic;
+                    const div = document.createElement('div');
+                    div.className = 'lv-option' + (state.topics.includes(val) ? ' selected' : '');
+                    div.innerHTML = `<span>${esc(topic)}</span><span class="check-icon">✓</span>`;
+                    div.onclick = () => {
+                        div.classList.toggle('selected');
+                        if (state.topics.includes(val)) state.topics = state.topics.filter(t => t !== val);
+                        else state.topics.push(val);
+                    };
+                    container.appendChild(div);
+                });
+            });
+        }
+
+        function selectTariff(tariffName, el) {
+            state.tariff = tariffName;
+            document.querySelectorAll('.tariff-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        let clientSlotsCache = [];
+        async function loadClientSlots() {
+            clientSlotsCache = sortSlots(await fetchPublicFreeSlots()).filter(s => !isPastSlot(s));
+            drawClientSlots();
+        }
+
+        function drawClientSlots() {
+            const daysBox = document.getElementById('daysRow');
+            const timesBox = document.getElementById('timesGrid');
+            const timesWrap = document.getElementById('timesWrap');
+            daysBox.innerHTML = '';
+            timesBox.innerHTML = '';
+
+            if (clientSlotsCache.length === 0) {
+                daysBox.style.display = 'block';
+                daysBox.innerHTML = `<div style="text-align:center; padding:16px; color:var(--lv-muted); font-size:13px;">Сейчас все окошки разобрали! Напишите @toriya_nova для подбора индивидуального времени.</div>`;
+                timesWrap.classList.add('hidden');
+                return;
+            }
+            daysBox.style.display = '';
+
+            const groups = new Map();
+            clientSlotsCache.forEach(s => {
+                if (!groups.has(s.day_label)) groups.set(s.day_label, []);
+                groups.get(s.day_label).push(s);
+            });
+            if (state.selectedDay && !groups.has(state.selectedDay)) {
+                state.selectedDay = null; state.selectedSlotId = null; state.selectedSlotLabel = '';
+            }
+
+            groups.forEach((list, day) => {
+                const div = document.createElement('div');
+                div.className = 'slot-pill' + (state.selectedDay === day ? ' selected' : '');
+                div.innerHTML = `<div class="time">${esc(day)}</div><div class="day">${list.length} окон</div>`;
+                div.onclick = () => { state.selectedDay = day; state.selectedSlotId = null; state.selectedSlotLabel = ''; drawClientSlots(); };
+                daysBox.appendChild(div);
+            });
+
+            if (state.selectedDay) {
+                timesWrap.classList.remove('hidden');
+                groups.get(state.selectedDay).forEach(slot => {
+                    const div = document.createElement('div');
+                    div.className = 'slot-pill' + (state.selectedSlotId === slot.id ? ' selected' : '');
+                    div.innerHTML = `<div class="time">${esc(slot.time_range)}</div>`;
+                    div.onclick = () => {
+                        state.selectedSlotId = slot.id;
+                        state.selectedSlotLabel = `${slot.day_label} (${slot.time_range})`;
+                        drawClientSlots();
+                    };
+                    timesBox.appendChild(div);
+                });
+            } else {
+                timesWrap.classList.add('hidden');
+            }
+        }
+
+        function goToStep(stepNumber) {
+            if (stepNumber === 2) {
+                if (!state.grade) { showToast('Пожалуйста, выберите класс ученика'); return; }
+                if (!state.subjects.length) { showToast('Выберите предмет: алгебра, геометрия или оба'); return; }
+                renderTopics();
+            }
+            if (stepNumber === 3) {
+                state.customTopic = document.getElementById('customTopicInput').value.trim();
+                if (state.topics.length === 0 && !state.customTopic) {
+                    showToast('Выберите хотя бы одну тему или впишите свою');
+                    return;
+                }
+            }
+            if (stepNumber === 4) loadClientSlots();
+
+            [1, 2, 3, 4].forEach(n => {
+                document.getElementById('step' + n).classList.toggle('hidden', n !== stepNumber);
+                const p = document.getElementById('pStep' + n);
+                p.classList.remove('active', 'done');
+                if (n < stepNumber) p.classList.add('done');
+                if (n === stepNumber) p.classList.add('active');
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ================= БРОНЬ КЛИЕНТА =================
+        async function submitBooking() {
+            const name = document.getElementById('clientName').value.trim();
+            const tgUser = document.getElementById('clientTg').value.trim();
+            state.goal = document.getElementById('goalSelect').value;
+            state.customTopic = document.getElementById('customTopicInput').value.trim();
+
+            if (!state.selectedSlotId) { showToast('Выберите день и время'); return; }
+            if (!name || !tgUser) { showToast('Укажите ваше имя и Telegram для связи'); return; }
+
+            const btn = document.getElementById('submitBookingBtn');
+            btn.disabled = true;
+            btn.textContent = 'Отправляем...';
+            const resetBtn = () => { btn.disabled = false; btn.textContent = '✦ Записаться'; };
+
+            if (sb) {
+                let res;
+                try {
+                    res = await sb.rpc('book_tutor_slot', {
+                        p_slot_id: state.selectedSlotId,
+                        p_student_name: name,
+                        p_tg_username: tgUser,
+                        p_grade: gradeLabel(),
+                        p_topics: state.topics,
+                        p_custom_topic: state.customTopic,
+                        p_goal: state.goal,
+                        p_tariff: state.tariff,
+                        p_slot_snapshot: state.selectedSlotLabel
+                    });
+                } catch (e) { res = { error: e, data: null }; }
+                const { data, error } = res;
+                resetBtn();
+
+                if (error || (data && !data.success)) {
+                    showToast(data?.error || 'Не удалось записаться: возможно, слот только что заняли. Выберите другой.');
+                    state.selectedSlotId = null;
+                    await loadClientSlots();
+                    return;
+                }
+            } else {
+                const slots = JSON.parse(localStorage.getItem('lv_tutor_slots') || '[]');
+                const target = slots.find(s => s.id === state.selectedSlotId);
+                if (!target || target.is_booked) {
+                    resetBtn();
+                    showToast('Этот слот только что забрали. Выберите другое окно.');
+                    state.selectedSlotId = null;
+                    await loadClientSlots();
+                    return;
+                }
+                target.is_booked = true;
+                target.booked_by_name = name;
+                target.booked_by_tg = tgUser;
+                localStorage.setItem('lv_tutor_slots', JSON.stringify(slots));
+                resetBtn();
+            }
+
+            const allTopics = [...state.topics, state.customTopic].filter(Boolean).join(', ');
+
+            document.getElementById('step4').classList.add('hidden');
+            document.getElementById('successScreen').classList.remove('hidden');
+            [1, 2, 3, 4].forEach(n => document.getElementById('pStep' + n).classList.replace('active', 'done'));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            showToast('✓ Заявка отправлена Тории');
+            try { tg?.HapticFeedback?.notificationOccurred('success'); } catch (e) {}
+
+            document.getElementById('bookingSummaryText').innerHTML = `
+                <b>${esc(name)}</b><br>
+                📅 ${esc(state.selectedSlotLabel)}<br>
+                🎓 ${esc(gradeLabel())}<br>
+                💎 ${esc(state.tariff)}<br>
+                📚 ${esc(allTopics) || '—'}
+            `;
+        }
+
+        function openTgChat(e) {
+            e.preventDefault();
+            const url = `https://t.me/${ADMIN_TG_USERNAME}`;
+            if (tg && typeof tg.openTelegramLink === 'function') tg.openTelegramLink(url);
+            else window.open(url, '_blank');
+            return false;
+        }
+
+        // ================= АДМИНКА: ВХОД И НАВИГАЦИЯ =================
+        function toggleAdminView() {
+            const clientView = document.getElementById('clientView');
+            const adminView = document.getElementById('adminView');
+            const authModal = document.getElementById('adminAuthModal');
+            const btn = document.getElementById('adminToggleBtn');
+
+            if (!adminView.classList.contains('hidden') || !authModal.classList.contains('hidden')) {
+                adminView.classList.add('hidden');
+                authModal.classList.add('hidden');
+                clientView.classList.remove('hidden');
+                btn.classList.remove('active');
+                btn.textContent = '♛ Дашборд';
+                if (!document.getElementById('step4').classList.contains('hidden')) loadClientSlots();
+                return;
+            }
+
+            clientView.classList.add('hidden');
+            btn.classList.add('active');
+            btn.textContent = '← В анкету';
+
+            if (!adminSecretKey) {
+                authModal.classList.remove('hidden');
+            } else {
+                adminView.classList.remove('hidden');
+                renderAdminDashboard();
+            }
+        }
+
+        function closeAdminAuth() {
+            document.getElementById('adminAuthModal').classList.add('hidden');
+            document.getElementById('clientView').classList.remove('hidden');
+            const btn = document.getElementById('adminToggleBtn');
+            btn.classList.remove('active');
+            btn.textContent = '♛ Дашборд';
+        }
+
+        async function unlockAdminDashboard() {
+            const keyInput = document.getElementById('adminSecretInput').value.trim();
+            if (!keyInput) { showToast('Введи секретный ключ'); return; }
+            adminSecretKey = keyInput;
+            const ok = await renderAdminDashboard();
+            if (ok) {
+                localStorage.setItem('lv_admin_secret_key', adminSecretKey);
+                document.getElementById('adminAuthModal').classList.add('hidden');
+                document.getElementById('adminView').classList.remove('hidden');
+                document.getElementById('adminSecretInput').value = '';
+                showToast('Добро пожаловать, Тория ♛');
+            } else {
+                adminSecretKey = '';
+                localStorage.removeItem('lv_admin_secret_key');
+            }
+        }
+
+        function switchAdminTab(tab) {
+            ['calendar', 'students', 'leads'].forEach(t => {
+                const cap = t.charAt(0).toUpperCase() + t.slice(1);
+                document.getElementById('adminTab' + cap).classList.toggle('hidden', t !== tab);
+                document.getElementById('tabBtn' + cap).classList.toggle('active', t === tab);
+            });
+            if (tab === 'students') renderStudentsDirectory();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function backToAuth(msg) {
+            showToast(msg);
+            adminSecretKey = '';
+            localStorage.removeItem('lv_admin_secret_key');
+            document.getElementById('adminView').classList.add('hidden');
+            document.getElementById('adminAuthModal').classList.remove('hidden');
+        }
+
+        // ================= ЯДРО СВЯЗКИ: ДЕТИ ПО ИМЕНАМ + СЧЁТЧИК УРОКОВ ↔ ДАТА ОПЛАТЫ =================
+        // В профиле каждого ученика храним:
+        // paidAnchorIso: 'YYYY-MM-DD' — дата отсчёта оплаченного пакета
+        // paidLessonsQuota: число оплаченных уроков начиная с paidAnchorIso
+        // paidUntil: 'YYYY-MM-DD' — авто-рассчитанная или ручная дата окончания оплаты
+        let studentProfiles = {};
+        let sysCrmRowIds = [];
+        let adminSlots = [];
+        let adminLeads = [];
+        let activeModalStudentKey = null;
+
+        function loadLocalStudentProfiles() {
+            try {
+                const raw = localStorage.getItem('lv_crm_students_v2');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && typeof parsed === 'object') studentProfiles = parsed;
+                }
+            } catch (e) {}
+        }
+        loadLocalStudentProfiles();
+
+        async function saveStudentProfilesToCloud() {
+            localStorage.setItem('lv_crm_students_v2', JSON.stringify(studentProfiles));
+            if (!sb || !adminSecretKey) return;
+            const payloadStr = JSON.stringify(studentProfiles);
+            const oldIds = [...sysCrmRowIds];
+            const added = await adminRpc('add_journal', {
+                student_name: SYS_CRM_KEY,
+                lessons_left: 0,
+                last_topic: 'sys_crm_v2',
+                homework: payloadStr
+            });
+            if (added && oldIds.length) {
+                for (const oldId of oldIds) {
+                    await adminRpc('delete_journal', { id: oldId });
+                }
+            }
+        }
+
+        function getStudentSlots(studentKey) {
+            return sortSlots(
+                adminSlots.filter(s => s.is_booked && normName(s.booked_by_name) === studentKey)
+            );
+        }
+
+        // Главная функция расчёта связки «Уроки ↔ Дата оплаты» для ребёнка
+        function computeStudentPaymentMap(studentKey) {
+            const prof = studentProfiles[studentKey];
+            const slots = getStudentSlots(studentKey);
+            const todayIso = isoKey(todayStart());
+            const slotMeta = new Map(); // slot.id -> { covered: bool, indexInQuota: number, totalQuota: number }
+
+            if (!prof) {
+                return { remainingFromToday: 0, effectivePaidUntil: '', unscheduledExtra: 0, slotMeta };
+            }
+
+            const anchorIso = prof.paidAnchorIso || todayIso;
+            let quota = typeof prof.paidLessonsQuota === 'number' ? prof.paidLessonsQuota : null;
+
+            // Миграция со старого поля paidUntil (если раньше была задана только дата без счётчика уроков)
+            if (quota === null) {
+                if (prof.paidUntil) {
+                    const coveredSlots = slots.filter(s => {
+                        const d = parseSlotDate(s.day_label);
+                        const sIso = d ? isoKey(d) : '';
+                        return sIso >= todayIso && sIso <= prof.paidUntil;
+                    });
+                    prof.paidAnchorIso = todayIso;
+                    prof.paidLessonsQuota = coveredSlots.length;
+                    quota = coveredSlots.length;
+                } else {
+                    prof.paidAnchorIso = todayIso;
+                    prof.paidLessonsQuota = 0;
+                    quota = 0;
+                }
+            }
+
+            let usedCount = 0;
+            let lastCoveredIso = '';
+            let coveredFromToday = 0;
+            let pastConsumedSinceAnchor = 0;
+
+            slots.forEach(s => {
+                const d = parseSlotDate(s.day_label);
+                const sIso = d ? isoKey(d) : '';
+                if (!sIso) return;
+
+                if (sIso < anchorIso) {
+                    // Уроки до даты старта текущего абонемента считаем архивными оплаченными
+                    slotMeta.set(s.id, { covered: true, archive: true });
+                    return;
+                }
+
+                if (usedCount < quota) {
+                    usedCount++;
+                    lastCoveredIso = sIso;
+                    if (sIso >= todayIso) coveredFromToday++;
+                    else pastConsumedSinceAnchor++;
+                    slotMeta.set(s.id, { covered: true, indexInQuota: usedCount, totalQuota: quota });
+                } else {
+                    slotMeta.set(s.id, { covered: false, indexInQuota: 0, totalQuota: quota });
+                }
+            });
+
+            const remainingFromToday = Math.max(0, quota - pastConsumedSinceAnchor);
+            const unscheduledExtra = Math.max(0, remainingFromToday - coveredFromToday);
+
+            // Автоматически обновляем дату «Оплачено до» по последнему покрытому уроку в расписании
+            if (quota > 0 && lastCoveredIso) {
+                prof.paidUntil = lastCoveredIso;
+            } else if (quota <= 0) {
+                prof.paidUntil = '';
+            }
+
+            return {
+                remainingFromToday,
+                effectivePaidUntil: prof.paidUntil || '',
+                unscheduledExtra,
+                totalQuota: quota,
+                slotMeta
+            };
+        }
+
+        function isSlotCoveredForStudent(slot, studentKey) {
+            const info = computeStudentPaymentMap(studentKey);
+            const m = info.slotMeta.get(slot.id);
+            if (m !== undefined) return m.covered;
+            const prof = studentProfiles[studentKey];
+            if (prof?.paidUntil) {
+                const d = parseSlotDate(slot.day_label);
+                if (d && isoKey(d) <= prof.paidUntil) return true;
+            }
+            return false;
+        }
+
+        function getStudentPaymentStatusInfo(studentKey) {
+            const prof = studentProfiles[studentKey];
+            const map = computeStudentPaymentMap(studentKey);
+            const todayIso = isoKey(todayStart());
+
+            if (map.remainingFromToday > 0) {
+                const untilHuman = map.effectivePaidUntil ? fmtIsoHuman(map.effectivePaidUntil) : '';
+                if (map.unscheduledExtra > 0) {
+                    return {
+                        state: 'paid',
+                        badgeClass: 'badge-paid',
+                        text: `✓ Оплачено: ${map.remainingFromToday} ур. (${untilHuman ? 'по ' + untilHuman + ' + ' + map.unscheduledExtra + ' в запасе' : 'в запасе'})`
+                    };
+                }
+                return {
+                    state: 'paid',
+                    badgeClass: 'badge-paid',
+                    text: `✓ Оплачено до ${untilHuman} (${map.remainingFromToday} ур.)`
+                };
+            }
+
+            if (prof?.paidUntil && prof.paidUntil < todayIso) {
+                return {
+                    state: 'expired',
+                    badgeClass: 'badge-expired',
+                    text: `⚠️ Оплата закончилась (${fmtIsoHuman(prof.paidUntil)})`
+                };
+            }
+
+            return {
+                state: 'unpaid',
+                badgeClass: 'badge-unpaid',
+                text: '⏳ 0 оплаченных уроков'
+            };
+        }
+
+        function syncStudentsFromSlotsAndLeads() {
+            adminLeads.forEach(l => {
+                const rawName = String(l.student_name || '').trim();
+                if (!rawName) return;
+                const k = normName(rawName);
+                const topicsStr = [...(l.topics || []), l.custom_topic].filter(Boolean).join(', ');
+                if (!studentProfiles[k]) {
+                    studentProfiles[k] = {
+                        name: rawName,
+                        grade: l.grade || '',
+                        tg: l.tg_username || '',
+                        paidAnchorIso: isoKey(todayStart()),
+                        paidLessonsQuota: 0,
+                        paidUntil: '',
+                        lastTopic: topicsStr,
+                        homework: ''
+                    };
+                } else {
+                    if (!studentProfiles[k].grade && l.grade) studentProfiles[k].grade = l.grade;
+                    if (!studentProfiles[k].tg && l.tg_username) studentProfiles[k].tg = l.tg_username;
+                    if (!studentProfiles[k].lastTopic && topicsStr) studentProfiles[k].lastTopic = topicsStr;
+                }
+            });
+
+            adminSlots.filter(s => s.is_booked && s.booked_by_name).forEach(s => {
+                const rawName = String(s.booked_by_name || '').trim();
+                if (!rawName) return;
+                const k = normName(rawName);
+                if (!studentProfiles[k]) {
+                    studentProfiles[k] = {
+                        name: rawName,
+                        grade: '',
+                        tg: s.booked_by_tg || '',
+                        paidAnchorIso: isoKey(todayStart()),
+                        paidLessonsQuota: 0,
+                        paidUntil: '',
+                        lastTopic: '',
+                        homework: ''
+                    };
+                } else if (!studentProfiles[k].tg && s.booked_by_tg && s.booked_by_tg !== 'Личная запись') {
+                    studentProfiles[k].tg = s.booked_by_tg;
+                }
+            });
+
+            Object.keys(studentProfiles).forEach(k => computeStudentPaymentMap(k));
+
+            const dl = document.getElementById('existingStudentsDatalist');
+            if (dl) {
+                dl.innerHTML = Object.values(studentProfiles)
+                    .map(p => `<option value="${esc(p.name)}"></option>`)
+                    .join('');
+            }
+        }
+
+        // ================= КАЛЕНДАРЬ И ОКНО ДНЯ (С КРЕСТИКОМ ✕) =================
+        const now0 = new Date();
+        const adminCal = {
+            y: now0.getFullYear(),
+            m: now0.getMonth(),
+            activeDateIso: isoKey(now0),
+            times: new Set()
+        };
+
+        function timeOptionsHtml(defaultVal = '15:00') {
+            let out = '';
+            for (let h = 8; h <= 21; h++) {
+                ['00', '30'].forEach(mm => {
+                    const t = `${pad(h)}:${mm}`;
+                    out += `<option value="${t}" ${t === defaultVal ? 'selected' : ''}>${t}</option>`;
+                });
+            }
+            return out;
+        }
+
+        function populateAllTimeSelects() {
+            ['qDayTimeSelect', 'stBuilderTime'].forEach(id => {
+                const sel = document.getElementById(id);
+                if (sel) sel.innerHTML = timeOptionsHtml('15:00');
+            });
+        }
+        populateAllTimeSelects();
+
+        function calShift(delta) {
+            adminCal.m += delta;
+            if (adminCal.m < 0) { adminCal.m = 11; adminCal.y--; }
+            if (adminCal.m > 11) { adminCal.m = 0; adminCal.y++; }
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            document.getElementById('calTitle').textContent = `${MON_FULL[adminCal.m]} ${adminCal.y}`;
+            const grid = document.getElementById('calGrid');
+            grid.innerHTML = '';
+            ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(w => {
+                const h = document.createElement('div');
+                h.className = 'cal-wd'; h.textContent = w;
+                grid.appendChild(h);
+            });
+
+            const first = new Date(adminCal.y, adminCal.m, 1);
+            const offset = (first.getDay() + 6) % 7;
+            const daysInMonth = new Date(adminCal.y, adminCal.m + 1, 0).getDate();
+            const todayIso = isoKey(todayStart());
+
+            const statsByLabel = new Map();
+            adminSlots.forEach(s => {
+                if (!statsByLabel.has(s.day_label)) {
+                    statsByLabel.set(s.day_label, { free: 0, booked: 0, hasUnpaid: false });
+                }
+                const st = statsByLabel.get(s.day_label);
+                if (s.is_booked) {
+                    st.booked++;
+                    const stKey = normName(s.booked_by_name);
+                    if (!isSlotCoveredForStudent(s, stKey)) st.hasUnpaid = true;
+                } else {
+                    st.free++;
+                }
+            });
+
+            for (let i = 0; i < offset; i++) {
+                const e = document.createElement('div');
+                e.className = 'cal-day empty';
+                grid.appendChild(e);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const d = new Date(adminCal.y, adminCal.m, day);
+                const key = isoKey(d);
+                const label = fmtDay(d);
+                const st = statsByLabel.get(label) || { free: 0, booked: 0, hasUnpaid: false };
+
+                const cell = document.createElement('div');
+                cell.className = 'cal-day' + (key === todayIso ? ' today' : '');
+
+                let dotsHtml = '';
+                if (st.booked > 0 || st.free > 0) {
+                    dotsHtml = `<div class="cal-dots">
+                        ${st.booked > 0 ? `<span class="cal-badge-lessons ${st.hasUnpaid ? 'unpaid' : ''}">${st.booked} ур</span>` : ''}
+                        ${st.free > 0 ? `<span class="cal-dot-free"></span>` : ''}
+                    </div>`;
+                }
+
+                cell.innerHTML = `<span>${day}</span>${dotsHtml}`;
+                cell.onclick = () => openDayModal(key);
+                grid.appendChild(cell);
+            }
+        }
+
+        function getActiveDateObj() {
+            const [y, m, d] = (adminCal.activeDateIso || isoKey(new Date())).split('-').map(Number);
+            return new Date(y, m - 1, d);
+        }
+
+        function openDayModal(dateIso) {
+            adminCal.activeDateIso = dateIso;
+            document.getElementById('quickAddDayForm').classList.add('hidden');
+            renderDayModalContent();
+            document.getElementById('dayModalBackdrop').classList.remove('hidden');
+            syncBodyModalLock();
+        }
+
+        function closeDayModal() {
+            document.getElementById('dayModalBackdrop').classList.add('hidden');
+            syncBodyModalLock();
+        }
+
+        function toggleQuickAddOnDay(forceState, presetStart) {
+            const box = document.getElementById('quickAddDayForm');
+            if (presetStart) {
+                const sel = document.getElementById('qDayTimeSelect');
+                if ([...sel.options].some(o => o.value === presetStart)) sel.value = presetStart;
+            }
+            const nextShow = typeof forceState === 'boolean' ? forceState : box.classList.contains('hidden');
+            box.classList.toggle('hidden', !nextShow);
+            if (nextShow) document.getElementById('qDayStudentName').focus();
+        }
+
+        function renderDayModalContent() {
+            const dt = getActiveDateObj();
+            const dayLabel = fmtDay(dt);
+            const dayIso = isoKey(dt);
+            document.getElementById('dayModalTitle').textContent = dayLabel;
+
+            const daySlots = adminSlots.filter(s => s.day_label === dayLabel);
+            const bookedSlots = daySlots.filter(s => s.is_booked);
+            const freeSlots = daySlots.filter(s => !s.is_booked);
+
+            const bookedBox = document.getElementById('dayModalBookedList');
+            if (!bookedSlots.length) {
+                bookedBox.innerHTML = `
+                    <div style="background:#fff; border:1px dashed rgba(197,160,89,0.5); border-radius:10px; padding:14px; text-align:center; font-size:12.5px; color:var(--lv-muted);">
+                        В этот день (<b>${esc(dayLabel)}</b>) пока никто не записан.<br>
+                        Нажми <b>«+ Записать на этот день»</b> выше, чтобы добавить ребёнка.
+                    </div>`;
+            } else {
+                bookedBox.innerHTML = '';
+                bookedSlots.forEach(s => {
+                    const stName = s.booked_by_name || 'Ученик';
+                    const stKey = normName(stName);
+                    const prof = studentProfiles[stKey] || { name: stName };
+                    const map = computeStudentPaymentMap(stKey);
+                    const meta = map.slotMeta.get(s.id);
+                    const isCovered = meta ? meta.covered : false;
+                    const startHour = String(s.time_range || '').split(' - ')[0] || '15:00';
+
+                    let payBadgeHtml = '';
+                    if (isCovered) {
+                        const numLabel = meta?.indexInQuota ? `урок ${meta.indexInQuota} из ${meta.totalQuota} • ` : '';
+                        payBadgeHtml = `<span class="badge-status badge-paid">✓ Оплачен (${numLabel}до ${esc(fmtIsoHuman(map.effectivePaidUntil))})</span>`;
+                    } else if (map.effectivePaidUntil) {
+                        payBadgeHtml = `<span class="badge-status badge-expired">⚠️ Не оплачен (оплата до ${esc(fmtIsoHuman(map.effectivePaidUntil))})</span>`;
+                    } else {
+                        payBadgeHtml = `<span class="badge-status badge-unpaid">⏳ Не оплачен</span>`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'admin-item';
+                    card.style.borderLeft = `4px solid ${isCovered ? 'var(--lv-success)' : 'var(--lv-warn)'}`;
+                    card.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; flex-wrap:wrap;">
+                            <div>
+                                <div style="font-weight:700; font-size:14.5px; color:var(--lv-dark);">
+                                    ⏰ ${esc(s.time_range)} —
+                                    <span style="text-decoration:underline; cursor:pointer;" onclick="openStudentModalFromDay('${esc(stKey)}')">
+                                        ${esc(stName)}
+                                    </span>
+                                </div>
+                                ${prof.grade || prof.tg ? `<div style="font-size:11.5px; color:var(--lv-muted); margin-top:2px;">${esc(prof.grade || '')} ${prof.tg ? '• ' + esc(prof.tg) : ''}</div>` : ''}
+                                <div style="margin-top:6px;">${payBadgeHtml}</div>
+                            </div>
+                            <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">
+                                <button type="button" class="mini-btn" onclick="toggleRescheduleBox('dayResched_${esc(s.id)}')">⇄ Перенести</button>
+                                <button type="button" class="mini-btn" onclick="skipAndShiftLesson('${esc(s.id)}', '${esc(stKey)}')" title="Отменить этот день и сдвинуть оплату на следующий урок">⏭ Сдвинуть</button>
+                                <button type="button" class="mini-btn dark" onclick="openStudentModalFromDay('${esc(stKey)}')">Карточка</button>
+                            </div>
+                        </div>
+                        <div id="dayResched_${esc(s.id)}" class="reschedule-box hidden">
+                            <div style="font-size:11px; font-weight:700; margin-bottom:6px;">На какую дату и время перенести урок ${esc(stName)}?</div>
+                            <div class="grid-2">
+                                <input type="date" id="dayResDate_${esc(s.id)}" class="lv-input" style="padding:7px; font-size:12px;" value="${esc(dayIso)}">
+                                <select id="dayResTime_${esc(s.id)}" class="lv-select" style="padding:7px; font-size:12px;">${timeOptionsHtml(startHour)}</select>
+                            </div>
+                            <div style="display:flex; gap:6px; margin-top:8px;">
+                                <button type="button" class="mini-btn" style="flex:1;" onclick="toggleRescheduleBox('dayResched_${esc(s.id)}')">Отмена</button>
+                                <button type="button" class="mini-btn dark" style="flex:2;" onclick="executeRescheduleSlot('${esc(s.id)}', '${esc(stKey)}', 'dayResDate_${esc(s.id)}', 'dayResTime_${esc(s.id)}')">✓ Перенести (оплата пересчитается)</button>
+                            </div>
+                        </div>`;
+                    bookedBox.appendChild(card);
+                });
+            }
+
+            const freeBox = document.getElementById('dayModalFreeList');
+            if (!freeSlots.length) {
+                freeBox.innerHTML = `<div style="font-size:12px; color:var(--lv-muted);">Свободных окон для анкеты на этот день нет.</div>`;
+            } else {
+                freeBox.innerHTML = `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
+                    freeSlots.map(s => {
+                        const startPart = String(s.time_range || '').split(' - ')[0] || '15:00';
+                        return `
+                            <div style="display:inline-flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--lv-gold); border-radius:8px; padding:5px 9px; font-size:12px; font-weight:600;">
+                                <span style="cursor:pointer;" onclick="toggleQuickAddOnDay(true, '${esc(startPart)}')" title="Нажми, чтобы записать ребёнка на это время">
+                                    🕒 ${esc(s.time_range)}
+                                </span>
+                                <button type="button" onclick="deleteSlotInModal('${esc(s.id)}')" style="border:none; background:none; color:var(--lv-danger); font-weight:700; cursor:pointer;">✕</button>
+                            </div>`;
+                    }).join('') + `</div>`;
+            }
+        }
+
+        function toggleRescheduleBox(boxId) {
+            const el = document.getElementById(boxId);
+            if (el) el.classList.toggle('hidden');
+        }
+
+        // Перенос конкретного урока на новую дату и время с авто-пересчётом даты «Оплачено до»
+        async function executeRescheduleSlot(oldSlotId, studentKey, dateInputId, timeSelectId) {
+            const newIso = document.getElementById(dateInputId)?.value;
+            const newStart = document.getElementById(timeSelectId)?.value || '15:00';
+            if (!newIso) return showToast('Выбери новую дату');
+
+            const [y, m, d] = newIso.split('-').map(Number);
+            const newDateObj = new Date(y, m - 1, d);
+            const newDayLabel = fmtDay(newDateObj);
+            const newTimeRange = `${newStart} - ${addMin(newStart, 60)}`;
+            const prof = studentProfiles[studentKey];
+            const studentName = prof?.name || 'Ученик';
+
+            showToast('Переносим урок...');
+            await adminRpc('delete_slot', { id: oldSlotId });
+            await bookSlotForStudentOnDate(newDayLabel, newTimeRange, studentName, prof?.lastTopic || '');
+
+            await renderAdminDashboard();
+            const updatedMap = computeStudentPaymentMap(studentKey);
+            await saveStudentProfilesToCloud();
+
+            if (!document.getElementById('dayModalBackdrop').classList.contains('hidden')) {
+                renderDayModalContent();
+            }
+            if (!document.getElementById('studentModalBackdrop').classList.contains('hidden') && activeModalStudentKey) {
+                renderStudentModalContent(activeModalStudentKey);
+            }
+
+            const untilMsg = updatedMap.effectivePaidUntil ? ` • Оплачено до ${fmtIsoHuman(updatedMap.effectivePaidUntil)}` : '';
+            showToast(`✓ Перенесено на ${newDayLabel} (${newStart})${untilMsg}`);
+        }
+
+        // Пропуск урока со сдвигом оплаты дальше (и авто-добавлением слота в конец, если слотов не хватало)
+        async function skipAndShiftLesson(slotId, studentKey) {
+            const slot = adminSlots.find(s => s.id === slotId);
+            if (!slot) return;
+            const prof = studentProfiles[studentKey];
+            const studentName = prof?.name || slot.booked_by_name || 'Ученик';
+
+            const allStudentSlots = getStudentSlots(studentKey);
+            const lastSlot = allStudentSlots[allStudentSlots.length - 1];
+            const mapBefore = computeStudentPaymentMap(studentKey);
+
+            // Удаляем пропущенный урок (квота оплаченных уроков НЕ сгорает!)
+            await adminRpc('delete_slot', { id: slotId });
+
+            // Если у ребёнка в расписании стояло ровно столько уроков, сколько оплачено (или меньше),
+            // автоматически ставим 1 урок через 7 дней после его крайнего урока, чтобы расписание сдвинулось вперёд
+            const upcomingAfterDelete = allStudentSlots.filter(s => s.id !== slotId && !isPastSlot(s));
+            if (lastSlot && upcomingAfterDelete.length < mapBefore.remainingFromToday) {
+                const lastDate = parseSlotDate(lastSlot.day_label);
+                if (lastDate) {
+                    const nextWeekDate = new Date(lastDate);
+                    nextWeekDate.setDate(nextWeekDate.getDate() + 7);
+                    const nextDayLabel = fmtDay(nextWeekDate);
+                    await bookSlotForStudentOnDate(nextDayLabel, lastSlot.time_range, studentName, prof?.lastTopic || '');
+                }
+            }
+
+            await renderAdminDashboard();
+            const mapAfter = computeStudentPaymentMap(studentKey);
+            await saveStudentProfilesToCloud();
+
+            if (!document.getElementById('dayModalBackdrop').classList.contains('hidden')) {
+                renderDayModalContent();
+            }
+            if (!document.getElementById('studentModalBackdrop').classList.contains('hidden') && activeModalStudentKey) {
+                renderStudentModalContent(activeModalStudentKey);
+            }
+
+            const untilText = mapAfter.effectivePaidUntil ? `Оплата сдвинулась до ${fmtIsoHuman(mapAfter.effectivePaidUntil)}` : 'Урок отменён без потери оплаты';
+            showToast(`⏭ ${untilText}`);
+        }
+
+        function openStudentModalFromDay(studentKey) {
+            closeDayModal();
+            openStudentModal(studentKey);
+        }
+
+        async function saveQuickLessonOnDay() {
+            const dt = getActiveDateObj();
+            const dayLabel = fmtDay(dt);
+            const name = document.getElementById('qDayStudentName').value.trim();
+            const tStart = document.getElementById('qDayTimeSelect').value;
+            const dur = parseInt(document.getElementById('qDayDuration').value, 10) || 60;
+            const note = document.getElementById('qDayNote').value.trim();
+            const timeRange = `${tStart} - ${addMin(tStart, dur)}`;
+
+            if (!name) return showToast('Впиши имя ребёнка');
+
+            const btn = document.getElementById('qDaySaveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Сохраняю...';
+
+            await bookSlotForStudentOnDate(dayLabel, timeRange, name, note);
+
+            btn.disabled = false;
+            btn.textContent = '✓ Поставить в расписание';
+            document.getElementById('qDayStudentName').value = '';
+            document.getElementById('qDayNote').value = '';
+            toggleQuickAddOnDay(false);
+
+            await renderAdminDashboard();
+            renderDayModalContent();
+            showToast(`✓ ${name} поставлен(а) на ${dayLabel} (${timeRange})`);
+        }
+
+        async function bookSlotForStudentOnDate(dayLabel, timeRange, studentName, topicNote) {
+            const stKey = normName(studentName);
+            if (!studentProfiles[stKey]) {
+                studentProfiles[stKey] = {
+                    name: studentName,
+                    grade: '',
+                    tg: '',
+                    paidAnchorIso: isoKey(todayStart()),
+                    paidLessonsQuota: 0,
+                    paidUntil: '',
+                    lastTopic: topicNote || '',
+                    homework: ''
+                };
+            } else if (topicNote) {
+                studentProfiles[stKey].lastTopic = topicNote;
+            }
+
+            let targetSlot = adminSlots.find(s => s.day_label === dayLabel && s.time_range === timeRange);
+            if (!targetSlot) {
+                await adminRpc('add_slot', { day_label: dayLabel, time_range: timeRange });
+                const dash = await sb.rpc('admin_get_dashboard', { p_secret: adminSecretKey });
+                if (dash.data?.slots) {
+                    adminSlots = sortSlots(dash.data.slots);
+                    targetSlot = adminSlots.find(s => s.day_label === dayLabel && s.time_range === timeRange);
+                }
+            }
+            if (targetSlot && !targetSlot.is_booked) {
+                await sb.rpc('book_tutor_slot', {
+                    p_slot_id: targetSlot.id,
+                    p_student_name: studentProfiles[stKey].name,
+                    p_tg_username: studentProfiles[stKey].tg || 'Личная запись',
+                    p_grade: studentProfiles[stKey].grade || 'Ученик',
+                    p_topics: [],
+                    p_custom_topic: topicNote || '',
+                    p_goal: 'Расписание преподавателя',
+                    p_tariff: 'По расписанию ученика',
+                    p_slot_snapshot: `${dayLabel} (${timeRange})`
+                });
+            }
+            await saveStudentProfilesToCloud();
+        }
+
+        async function quickAddFreeSlotOnActiveDay() {
+            const dt = getActiveDateObj();
+            const dayLabel = fmtDay(dt);
+            const tStart = prompt(`На какое время открыть свободное окно (${dayLabel})? Например: 16:00`, '16:00');
+            if (!tStart) return;
+            const cleanStart = tStart.trim();
+            if (!/^\d{1,2}:\d{2}$/.test(cleanStart)) return showToast('Формат времени: ЧЧ:ММ (например 16:00)');
+            const range = `${cleanStart.padStart(5, '0')} - ${addMin(cleanStart.padStart(5, '0'), 60)}`;
+            await adminRpc('add_slot', { day_label: dayLabel, time_range: range });
+            await renderAdminDashboard();
+            renderDayModalContent();
+            showToast(`Открыто окно: ${dayLabel} (${range})`);
+        }
+
+        async function unbookOrDeleteSlotInModal(slotId) {
+            await adminRpc('delete_slot', { id: slotId });
+            await renderAdminDashboard();
+            if (activeModalStudentKey) {
+                computeStudentPaymentMap(activeModalStudentKey);
+                await saveStudentProfilesToCloud();
+            }
+            if (!document.getElementById('dayModalBackdrop').classList.contains('hidden')) {
+                renderDayModalContent();
+            }
+            if (!document.getElementById('studentModalBackdrop').classList.contains('hidden') && activeModalStudentKey) {
+                renderStudentModalContent(activeModalStudentKey);
+            }
+            showToast('Урок удалён (оплата пересчитана)');
+        }
+
+        async function deleteSlotInModal(slotId) {
+            await adminRpc('delete_slot', { id: slotId });
+            await renderAdminDashboard();
+            renderDayModalContent();
+            showToast('Свободное окно удалено');
+        }
+
+        // ================= ВКЛАДКА «ПО ИМЕНАМ» И ОКНО РЕБЁНКА (С КРЕСТИКОМ ✕) =================
+        function renderStudentsDirectory() {
+            const box = document.getElementById('studentsListContainer');
+            if (!box) return;
+            syncStudentsFromSlotsAndLeads();
+
+            const keys = Object.keys(studentProfiles).sort((a, b) =>
+                studentProfiles[a].name.localeCompare(studentProfiles[b].name, 'ru')
+            );
+
+            if (!keys.length) {
+                box.innerHTML = `
+                    <div style="text-align:center; padding:20px; color:var(--lv-muted); font-size:13px;">
+                        Пока нет добавленных учеников.<br>Нажми <b>«+ Ребёнок»</b> справа вверху, чтобы завести карточку.
+                    </div>`;
+                return;
+            }
+
+            box.innerHTML = '';
+            keys.forEach(k => {
+                const prof = studentProfiles[k];
+                const payInfo = getStudentPaymentStatusInfo(k);
+                const map = computeStudentPaymentMap(k);
+                const slots = getStudentSlots(k);
+                const upcomingSlots = slots.filter(s => !isPastSlot(s));
+
+                const daysPreview = upcomingSlots.length
+                    ? upcomingSlots.slice(0, 3).map(s => `${s.day_label} (${s.time_range.split(' - ')[0]})`).join(' • ')
+                      + (upcomingSlots.length > 3 ? ` и ещё ${upcomingSlots.length - 3}` : '')
+                    : 'Дни в расписании пока не стоят';
+
+                const unpaidUpcomingCount = upcomingSlots.filter(s => !isSlotCoveredForStudent(s, k)).length;
+
+                const div = document.createElement('div');
+                div.className = 'student-card ' + (payInfo.state === 'paid' ? 'active-paid' : payInfo.state === 'expired' ? 'expired' : '');
+                div.onclick = () => openStudentModal(k);
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; flex-wrap:wrap;">
+                        <div>
+                            <div style="font-size:16px; font-weight:700; color:var(--lv-dark);">
+                                👤 ${esc(prof.name)}
+                                ${prof.grade ? `<span style="font-size:12px; font-weight:500; color:var(--lv-muted);">• ${esc(prof.grade)}</span>` : ''}
+                            </div>
+                            <div style="font-size:12px; color:var(--lv-muted); margin-top:4px;">
+                                📅 <b>Дни:</b> ${esc(daysPreview)}
+                            </div>
+                            ${unpaidUpcomingCount > 0 && map.effectivePaidUntil ? `
+                                <div style="font-size:11.5px; color:var(--lv-danger); font-weight:600; margin-top:4px;">
+                                    ⚠️ После ${esc(fmtIsoHuman(map.effectivePaidUntil))} в расписании ещё ${unpaidUpcomingCount} неоплач. ур.
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div style="text-align:right;">
+                            <span class="badge-status ${payInfo.badgeClass}">${esc(payInfo.text)}</span>
+                        </div>
+                    </div>`;
+                box.appendChild(div);
+            });
+        }
+
+        function openNewStudentModal() {
+            const name = prompt('Введи имя ребёнка (например: Марк):');
+            if (!name || !name.trim()) return;
+            const clean = name.trim();
+            const k = normName(clean);
+            if (!studentProfiles[k]) {
+                studentProfiles[k] = {
+                    name: clean,
+                    grade: '',
+                    tg: '',
+                    paidAnchorIso: isoKey(todayStart()),
+                    paidLessonsQuota: 4,
+                    paidUntil: '',
+                    lastTopic: '',
+                    homework: ''
+                };
+            }
+            saveStudentProfilesToCloud();
+            renderStudentsDirectory();
+            openStudentModal(k);
+        }
+
+        function openStudentModal(studentKey) {
+            activeModalStudentKey = studentKey;
+            document.getElementById('stScheduleBuilder').classList.add('hidden');
+            renderStudentModalContent(studentKey);
+            document.getElementById('studentModalBackdrop').classList.remove('hidden');
+            syncBodyModalLock();
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentModalBackdrop').classList.add('hidden');
+            activeModalStudentKey = null;
+            syncBodyModalLock();
+        }
+
+        // Изменение счётчика оплаченных уроков (+1, -1, +4, +8) -> авто-пересчёт даты «Оплачено до»
+        async function adjustStudentPaidLessons(delta) {
+            if (!activeModalStudentKey || !studentProfiles[activeModalStudentKey]) return;
+            const prof = studentProfiles[activeModalStudentKey];
+            const map = computeStudentPaymentMap(activeModalStudentKey);
+            const nextRemaining = Math.max(0, map.remainingFromToday + delta);
+
+            prof.paidAnchorIso = isoKey(todayStart());
+            prof.paidLessonsQuota = nextRemaining;
+
+            const updatedMap = computeStudentPaymentMap(activeModalStudentKey);
+            renderStudentModalContent(activeModalStudentKey);
+            renderStudentsDirectory();
+            renderCalendar();
+            await saveStudentProfilesToCloud();
+
+            showToast(
+                nextRemaining > 0
+                    ? `✓ Оплачено уроков: ${nextRemaining}${updatedMap.effectivePaidUntil ? ' (до ' + fmtIsoHuman(updatedMap.effectivePaidUntil) + ')' : ''}`
+                    : 'Оплата сброшена (0 уроков)'
+            );
+        }
+
+        async function onManualLessonsCountChange() {
+            if (!activeModalStudentKey || !studentProfiles[activeModalStudentKey]) return;
+            const prof = studentProfiles[activeModalStudentKey];
+            const val = Math.max(0, parseInt(document.getElementById('stPaidLessonsInput').value || '0', 10) || 0);
+            prof.paidAnchorIso = isoKey(todayStart());
+            prof.paidLessonsQuota = val;
+
+            const updatedMap = computeStudentPaymentMap(activeModalStudentKey);
+            renderStudentModalContent(activeModalStudentKey);
+            renderStudentsDirectory();
+            renderCalendar();
+            await saveStudentProfilesToCloud();
+            showToast(updatedMap.effectivePaidUntil ? `✓ Авто-дата оплаты: до ${fmtIsoHuman(updatedMap.effectivePaidUntil)}` : `✓ Оплачено уроков: ${val}`);
+        }
+
+        // Если Тория вручную выбрала дату «Оплачено до 12 ноября» -> система сама считает, сколько это уроков
+        async function onManualPaidUntilDateChange() {
+            if (!activeModalStudentKey || !studentProfiles[activeModalStudentKey]) return;
+            const prof = studentProfiles[activeModalStudentKey];
+            const targetIso = document.getElementById('stPaidUntilInput').value;
+            const todayIso = isoKey(todayStart());
+
+            if (!targetIso) {
+                prof.paidAnchorIso = todayIso;
+                prof.paidLessonsQuota = 0;
+                prof.paidUntil = '';
+            } else {
+                const slots = getStudentSlots(activeModalStudentKey);
+                const countUpToDate = slots.filter(s => {
+                    const d = parseSlotDate(s.day_label);
+                    const sIso = d ? isoKey(d) : '';
+                    return sIso >= todayIso && sIso <= targetIso;
+                }).length;
+
+                prof.paidAnchorIso = todayIso;
+                prof.paidLessonsQuota = countUpToDate > 0 ? countUpToDate : 1;
+                prof.paidUntil = targetIso;
+            }
+
+            computeStudentPaymentMap(activeModalStudentKey);
+            renderStudentModalContent(activeModalStudentKey);
+            renderStudentsDirectory();
+            renderCalendar();
+            await saveStudentProfilesToCloud();
+            showToast(targetIso ? `✓ Оплачено до ${fmtIsoHuman(targetIso)} (${prof.paidLessonsQuota} ур.)` : 'Оплата сброшена');
+        }
+
+        async function setStudentPaidUntilSlotCount(lessonNumberFromToday) {
+            if (!activeModalStudentKey || !studentProfiles[activeModalStudentKey]) return;
+            const prof = studentProfiles[activeModalStudentKey];
+            prof.paidAnchorIso = isoKey(todayStart());
+            prof.paidLessonsQuota = lessonNumberFromToday;
+            const updatedMap = computeStudentPaymentMap(activeModalStudentKey);
+            renderStudentModalContent(activeModalStudentKey);
+            renderStudentsDirectory();
+            renderCalendar();
+            await saveStudentProfilesToCloud();
+            showToast(`✓ Оплачено: ${lessonNumberFromToday} ур. (до ${fmtIsoHuman(updatedMap.effectivePaidUntil)})`);
+        }
+
+        async function resetStudentPayment() {
+            if (!activeModalStudentKey || !studentProfiles[activeModalStudentKey]) return;
+            const prof = studentProfiles[activeModalStudentKey];
+            prof.paidAnchorIso = isoKey(todayStart());
+            prof.paidLessonsQuota = 0;
+            prof.paidUntil = '';
+            computeStudentPaymentMap(activeModalStudentKey);
+            renderStudentModalContent(activeModalStudentKey);
+            renderStudentsDirectory();
+            renderCalendar();
+            await saveStudentProfilesToCloud();
+            showToast('Оплата сброшена');
+        }
+
+        async function saveStudentMetaFields(showMsg) {
+            if (!activeModalStudentKey || !studentProfiles[activeModalStudentKey]) return;
+            const prof = studentProfiles[activeModalStudentKey];
+            prof.grade = document.getElementById('stGradeInput').value.trim();
+            prof.tg = document.getElementById('stTgInput').value.trim();
+            prof.lastTopic = document.getElementById('stLastTopicInput').value.trim();
+            prof.homework = document.getElementById('stHomeworkInput').value.trim();
+            renderStudentsDirectory();
+            await saveStudentProfilesToCloud();
+            if (showMsg) showToast('✓ Заметки и ДЗ сохранены');
+        }
+
+        function renderStudentModalContent(studentKey) {
+            const prof = studentProfiles[studentKey];
+            if (!prof) return;
+
+            const map = computeStudentPaymentMap(studentKey);
+            const payInfo = getStudentPaymentStatusInfo(studentKey);
+
+            document.getElementById('stModalTitle').textContent = prof.name;
+            document.getElementById('stPaidLessonsInput').value = map.remainingFromToday;
+            document.getElementById('stPaidUntilInput').value = map.effectivePaidUntil || '';
+            document.getElementById('stGradeInput').value = prof.grade || '';
+            document.getElementById('stTgInput').value = prof.tg || '';
+            document.getElementById('stLastTopicInput').value = prof.lastTopic || '';
+            document.getElementById('stHomeworkInput').value = prof.homework || '';
+
+            const badge = document.getElementById('stModalPayBadge');
+            badge.className = `badge-status ${payInfo.badgeClass}`;
+            badge.textContent = payInfo.text;
+
+            const lessonsBox = document.getElementById('stModalLessonsList');
+            const slots = getStudentSlots(studentKey);
+            const todayIso = isoKey(todayStart());
+
+            if (!slots.length) {
+                lessonsBox.innerHTML = `
+                    <div style="background:#fff; border:1px dashed rgba(197,160,89,0.5); border-radius:8px; padding:12px; font-size:12px; color:var(--lv-muted); text-align:center;">
+                        У ребёнка пока не стоят дни в календаре.<br>Нажми <b>«+ Поставить дни»</b> выше, чтобы добавить расписание.
+                    </div>`;
+                return;
+            }
+
+            lessonsBox.innerHTML = '';
+            let cutoffDividerShown = false;
+            let upcomingIndex = 0;
+
+            slots.forEach(s => {
+                const slotDateObj = parseSlotDate(s.day_label);
+                const slotIso = slotDateObj ? isoKey(slotDateObj) : '';
+                const past = isPastSlot(s);
+                if (slotIso >= todayIso) upcomingIndex++;
+
+                const meta = map.slotMeta.get(s.id);
+                const isCovered = meta ? meta.covered : false;
+                const startHour = String(s.time_range || '').split(' - ')[0] || '15:00';
+
+                // Красная черта отсечки сразу после крайнего оплаченного урока
+                if (map.remainingFromToday > 0 && !past && !isCovered && !cutoffDividerShown) {
+                    cutoffDividerShown = true;
+                    const divLine = document.createElement('div');
+                    divLine.className = 'payment-cutoff-divider';
+                    divLine.innerHTML = `── ⚠️ Оплата (${map.remainingFromToday} ур. — до ${esc(fmtIsoHuman(map.effectivePaidUntil))}) заканчивается здесь • Дальше не оплачено ──`;
+                    lessonsBox.appendChild(divLine);
+                }
+
+                const row = document.createElement('div');
+                row.className = 'admin-item';
+                row.style.padding = '10px 12px';
+                row.style.marginBottom = '7px';
+                row.style.borderLeft = `4px solid ${isCovered ? 'var(--lv-success)' : 'var(--lv-danger)'}`;
+                if (past) row.style.opacity = '0.55';
+
+                let statusHtml = '';
+                if (isCovered) {
+                    const numStr = meta?.indexInQuota ? `урок ${meta.indexInQuota} из ${meta.totalQuota}` : 'оплачен';
+                    statusHtml = `<span class="badge-status badge-paid">✓ Оплачен (${numStr})</span>`;
+                } else {
+                    statusHtml = `<span class="badge-status badge-expired">⚠️ Не оплачен</span>`;
+                }
+
+                const idxForBtn = upcomingIndex;
+
+                row.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; flex-wrap:wrap;">
+                        <div>
+                            <b style="font-size:13px;">📅 ${esc(s.day_label)} • ${esc(s.time_range)}</b>
+                            ${past ? `<span style="font-size:10px; color:var(--lv-muted);">(прошёл)</span>` : ''}
+                            <div style="margin-top:4px;">${statusHtml}</div>
+                        </div>
+                        <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">
+                            ${!past ? `
+                                <button type="button" class="mini-btn" style="font-size:10.5px; padding:4px 7px;" onclick="toggleRescheduleBox('stResched_${esc(s.id)}')" title="Перенести на другой день/час">
+                                    ⇄ Перенести
+                                </button>
+                                <button type="button" class="mini-btn" style="font-size:10.5px; padding:4px 7px;" onclick="skipAndShiftLesson('${esc(s.id)}', '${esc(studentKey)}')" title="Пропуск: отменить этот день и сдвинуть оплату дальше">
+                                    ⏭ Сдвинуть
+                                </button>
+                            ` : ''}
+                            ${!past && idxForBtn > 0 && idxForBtn !== map.remainingFromToday ? `
+                                <button type="button" class="mini-btn" style="font-size:10px; padding:4px 7px;" onclick="setStudentPaidUntilSlotCount(${idxForBtn})" title="Сделать этот день крайним оплаченным (${idxForBtn} ур.)">
+                                    Оплачено по сюда (${idxForBtn})
+                                </button>
+                            ` : ''}
+                            <button type="button" class="mini-btn danger" style="padding:4px 7px;" onclick="unbookOrDeleteSlotInModal('${esc(s.id)}')" title="Удалить этот урок">✕</button>
+                        </div>
+                    </div>
+                    <div id="stResched_${esc(s.id)}" class="reschedule-box hidden">
+                        <div style="font-size:11px; font-weight:700; margin-bottom:6px;">Выбери новую дату и время для этого урока:</div>
+                        <div class="grid-2">
+                            <input type="date" id="stResDate_${esc(s.id)}" class="lv-input" style="padding:7px; font-size:12px;" value="${esc(slotIso)}">
+                            <select id="stResTime_${esc(s.id)}" class="lv-select" style="padding:7px; font-size:12px;">${timeOptionsHtml(startHour)}</select>
+                        </div>
+                        <div style="display:flex; gap:6px; margin-top:8px;">
+                            <button type="button" class="mini-btn" style="flex:1;" onclick="toggleRescheduleBox('stResched_${esc(s.id)}')">Отмена</button>
+                            <button type="button" class="mini-btn dark" style="flex:2;" onclick="executeRescheduleSlot('${esc(s.id)}', '${esc(studentKey)}', 'stResDate_${esc(s.id)}', 'stResTime_${esc(s.id)}')">✓ Перенести урок</button>
+                        </div>
+                    </div>`;
+                lessonsBox.appendChild(row);
+            });
+        }
+
+        async function deleteStudentProfileCompletely() {
+            if (!activeModalStudentKey) return;
+            const prof = studentProfiles[activeModalStudentKey];
+            if (!confirm(`Удалить карточку ученика «${prof?.name}»?`)) return;
+            delete studentProfiles[activeModalStudentKey];
+            closeStudentModal();
+            renderStudentsDirectory();
+            await saveStudentProfilesToCloud();
+            showToast('Карточка удалена');
+        }
+
+        function toggleStudentScheduleBuilder() {
+            document.getElementById('stScheduleBuilder').classList.toggle('hidden');
+        }
+
+        async function addRecurringLessonsForStudent() {
+            if (!activeModalStudentKey || !studentProfiles[activeModalStudentKey]) return;
+            const prof = studentProfiles[activeModalStudentKey];
+            const selectedWds = [...document.querySelectorAll('#stWdPicker .wd-chip.sel')].map(el => parseInt(el.dataset.wd, 10));
+            if (!selectedWds.length) return showToast('Отметь хотя бы один день недели (Пн–Вс)');
+
+            const tStart = document.getElementById('stBuilderTime').value;
+            const weeks = parseInt(document.getElementById('stBuilderWeeks').value, 10) || 4;
+            const timeRange = `${tStart} - ${addMin(tStart, 60)}`;
+
+            const btn = document.getElementById('stBuilderRunBtn');
+            btn.disabled = true;
+            btn.textContent = 'Ставим уроки в календарь...';
+
+            const base = todayStart();
+            const totalDays = weeks * 7;
+            for (let i = 0; i < totalDays; i++) {
+                const d = new Date(base);
+                d.setDate(d.getDate() + i);
+                if (selectedWds.includes(d.getDay())) {
+                    const label = fmtDay(d);
+                    await bookSlotForStudentOnDate(label, timeRange, prof.name, prof.lastTopic || '');
+                }
+            }
+
+            btn.disabled = false;
+            btn.textContent = '✓ Поставить выбранные дни в календарь';
+            document.getElementById('stScheduleBuilder').classList.add('hidden');
+
+            await renderAdminDashboard();
+            computeStudentPaymentMap(activeModalStudentKey);
+            await saveStudentProfilesToCloud();
+            renderStudentModalContent(activeModalStudentKey);
+            showToast(`✓ Расписание для ${prof.name} добавлено`);
+        }
+
+        // ================= ОКНО МАССОВОГО ОТКРЫТИЯ СВОБОДНЫХ СЛОТОВ =================
+        function openBatchSlotsModal() {
+            renderTimeChips();
+            document.getElementById('batchSlotsModalBackdrop').classList.remove('hidden');
+            syncBodyModalLock();
+        }
+        function closeBatchSlotsModal() {
+            document.getElementById('batchSlotsModalBackdrop').classList.add('hidden');
+            syncBodyModalLock();
+        }
+
+        function renderTimeChips() {
+            const box = document.getElementById('timeChips');
+            box.innerHTML = '';
+            for (let h = 8; h <= 21; h++) {
+                ['00', '30'].forEach(mm => {
+                    const t = `${pad(h)}:${mm}`;
+                    const c = document.createElement('div');
+                    c.className = 'chip' + (adminCal.times.has(t) ? ' sel' : '');
+                    c.textContent = t;
+                    c.onclick = () => {
+                        if (adminCal.times.has(t)) adminCal.times.delete(t); else adminCal.times.add(t);
+                        c.classList.toggle('sel');
+                    };
+                    box.appendChild(c);
+                });
+            }
+        }
+
+        async function adminRpc(action, payload) {
+            if (!sb) return false;
+            try {
+                const { data, error } = await sb.rpc('admin_manage_action', {
+                    p_secret: adminSecretKey, p_action: action, p_payload: payload
+                });
+                return !(error || !data?.success);
+            } catch (e) { return false; }
+        }
+
+        async function createBatchFreeSlots() {
+            const selectedWds = [...document.querySelectorAll('#batchWdPicker .wd-chip.sel')].map(el => parseInt(el.dataset.wd, 10));
+            if (!selectedWds.length || !adminCal.times.size) {
+                return showToast('Отметь дни недели и время начала');
+            }
+            const weeks = parseInt(document.getElementById('repeatWeeks').value, 10) || 1;
+            const dur = parseInt(document.getElementById('slotDuration').value, 10) || 60;
+            const existing = new Set(adminSlots.map(s => s.day_label + '|' + s.time_range));
+            const jobs = [];
+            const base = todayStart();
+
+            for (let i = 0; i < weeks * 7; i++) {
+                const dt = new Date(base);
+                dt.setDate(dt.getDate() + i);
+                if (selectedWds.includes(dt.getDay())) {
+                    const label = fmtDay(dt);
+                    [...adminCal.times].sort().forEach(t => {
+                        const range = `${t} - ${addMin(t, dur)}`;
+                        const k = label + '|' + range;
+                        if (!existing.has(k)) { existing.add(k); jobs.push({ day_label: label, time_range: range }); }
+                    });
+                }
+            }
+
+            if (!jobs.length) return showToast('Такие окна уже открыты');
+
+            const btn = document.getElementById('createSlotsBtn');
+            btn.disabled = true;
+            let ok = 0;
+            for (let i = 0; i < jobs.length; i += 5) {
+                btn.textContent = `Открываю ${Math.min(i + 5, jobs.length)} из ${jobs.length}...`;
+                const res = await Promise.all(jobs.slice(i, i + 5).map(j => adminRpc('add_slot', j)));
+                ok += res.filter(Boolean).length;
+            }
+            btn.disabled = false;
+            btn.textContent = '+ Открыть слоты';
+            closeBatchSlotsModal();
+            showToast(`Готово: открыто свободных окон — ${ok}`);
+            renderAdminDashboard();
+        }
+
+        async function cleanPastSlots() {
+            const past = adminSlots.filter(s => isPastSlot(s) && !s.is_booked);
+            if (!past.length) { showToast('Прошедших пустых окон нет'); return; }
+            for (let i = 0; i < past.length; i += 5) {
+                await Promise.all(past.slice(i, i + 5).map(s => adminRpc('delete_slot', { id: s.id })));
+            }
+            showToast(`Убрано старых окон: ${past.length}`);
+            renderAdminDashboard();
+        }
+
+        // ================= ГЛАВНАЯ ЗАГРУЗКА ДАШБОРДА =================
+        async function renderAdminDashboard() {
+            if (!sb) {
+                backToAuth('Нет связи с базой данных. Проверь интернет.');
+                return false;
+            }
+
+            let res;
+            try {
+                res = await sb.rpc('admin_get_dashboard', { p_secret: adminSecretKey });
+            } catch (e) {
+                backToAuth('Ошибка соединения с базой');
+                return false;
+            }
+            const { data, error } = res;
+            if (error || !data || !data.success) {
+                backToAuth(data?.error || 'Неверный секретный ключ!');
+                return false;
+            }
+
+            adminSlots = sortSlots(data.slots || []);
+            adminLeads = data.leads || [];
+            const rawJournal = data.journal || [];
+
+            sysCrmRowIds = [];
+            let cloudLoaded = false;
+            rawJournal.forEach(j => {
+                if (j.student_name === SYS_CRM_KEY) {
+                    sysCrmRowIds.push(j.id);
+                    if (!cloudLoaded && j.homework) {
+                        try {
+                            const parsed = JSON.parse(j.homework);
+                            if (parsed && typeof parsed === 'object') {
+                                studentProfiles = { ...studentProfiles, ...parsed };
+                                localStorage.setItem('lv_crm_students_v2', JSON.stringify(studentProfiles));
+                                cloudLoaded = true;
+                            }
+                        } catch (e) {}
+                    }
+                }
+            });
+
+            syncStudentsFromSlotsAndLeads();
+            renderCalendar();
+            renderStudentsDirectory();
+
+            const leadsBox = document.getElementById('adminLeadsList');
+            leadsBox.innerHTML = adminLeads.length ? '' : '<div style="font-size:13px; color:var(--lv-muted);">Пока новых заявок нет.</div>';
+            adminLeads.forEach(l => {
+                const topicsStr = [...(l.topics || []), l.custom_topic].filter(Boolean).join(', ');
+                const handle = String(l.tg_username || '').replace('@', '').replace(/[^A-Za-z0-9_]/g, '');
+                const stKey = normName(l.student_name);
+                const item = document.createElement('div');
+                item.className = 'admin-item';
+                item.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                        <b style="font-size:15px; cursor:pointer; text-decoration:underline;" onclick="openStudentModal('${esc(stKey)}')">${esc(l.student_name)}</b>
+                        ${handle ? `<a href="https://t.me/${handle}" target="_blank" style="color:var(--lv-gold); font-weight:700; font-size:13px;">${esc(l.tg_username)}</a>` : `<span style="font-size:13px;">${esc(l.tg_username)}</span>`}
+                    </div>
+                    <div style="font-size:12px; margin-top:6px;">
+                        <b>Класс:</b> ${esc(l.grade)} | <b>Выбранный слот:</b> <span style="color:var(--lv-success); font-weight:600;">${esc(l.slot_snapshot)}</span><br>
+                        <b>Тариф:</b> ${esc(l.tariff)}<br>
+                        <b>Темы:</b> ${esc(topicsStr || '—')}
+                    </div>
+                    <div style="margin-top:8px; display:flex; justify-content:flex-end;">
+                        <button type="button" class="mini-btn dark" onclick="openStudentModal('${esc(stKey)}')">Открыть карточку и выставить оплату ➔</button>
+                    </div>`;
+                leadsBox.appendChild(item);
+            });
+
+            return true;
+        }
+    </script>
+</body>
+</html>
